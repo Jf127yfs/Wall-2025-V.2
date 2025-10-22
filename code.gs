@@ -808,8 +808,8 @@ function safeString_(val) {
 }
 
 function findHeaderIndex_(headers, possibilities) {
-  for (var p of possibilities) {
-    var norm = p.toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (var p = 0; p < possibilities.length; p++) {
+    var norm = possibilities[p].toLowerCase().replace(/[^a-z0-9]/g, '');
     for (var i = 0; i < headers.length; i++) {
       var h = headers[i].toLowerCase().replace(/[^a-z0-9]/g, '');
       if (h === norm) return i;
@@ -909,14 +909,14 @@ function monthDayFromCell_(val) {
     /^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-]\d{2,4})?$/, // MM/DD or MM/DD/YYYY
     /^(\d{1,2})\/(\d{1,2})$/                         // MM/DD
   ];
-  
-  for (var pattern of patterns) {
-    var match = str.match(pattern);
+
+  for (var j = 0; j < patterns.length; j++) {
+    var match = str.match(patterns[j]);
     if (match) {
       return { m: parseInt(match[1], 10), d: parseInt(match[2], 10) };
     }
   }
-  
+
   return null;
 }
 
@@ -1076,10 +1076,11 @@ function testSheetColumns() {
   ];
   
   var allFound = true;
-  
-  for (var req of required) {
+
+  for (var r = 0; r < required.length; r++) {
+    var req = required[r];
     var actualName = headers[req.col - 1];
-    
+
     if (!actualName) {
       Logger.log('❌ FAIL: Column ' + req.col + ' (' + req.name + ') is MISSING');
       allFound = false;
@@ -1111,8 +1112,9 @@ function testBackendFunctions() {
   ];
   
   var allExist = true;
-  
-  for (var funcName of requiredFunctions) {
+
+  for (var f = 0; f < requiredFunctions.length; f++) {
+    var funcName = requiredFunctions[f];
     if (typeof this[funcName] === 'function') {
       Logger.log('✅ ' + funcName + '() exists');
     } else {
@@ -1225,8 +1227,7 @@ function testSampleCheckIn() {
       dob: formattedDOB
     });
     
-    Logger.log('
-Check-in result:');
+    Logger.log('Check-in result:');
     Logger.log(JSON.stringify(result, null, 2));
     
     if (result.ok) {
@@ -1277,7 +1278,8 @@ function testHTMLAlignment() {
       'photoInput'
     ];
     
-    for (var elemId of requiredElements) {
+    for (var e = 0; e < requiredElements.length; e++) {
+      var elemId = requiredElements[e];
       if (content.includes('id="' + elemId + '"')) {
         Logger.log('✅ HTML has element: ' + elemId);
       } else {
@@ -1293,7 +1295,8 @@ function testHTMLAlignment() {
       {name: 'uploadGuestPhoto', pattern: /google\.script\.run[.\s\S]*uploadGuestPhoto/}
     ];
     
-    for (var call of requiredCalls) {
+    for (var c = 0; c < requiredCalls.length; c++) {
+      var call = requiredCalls[c];
       if (call.pattern.test(content)) {
         Logger.log('✅ HTML calls: ' + call.name);
       } else {
