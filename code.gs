@@ -292,7 +292,7 @@ function getZipCodesFromSheet() {
     
     // Count occurrences of each zip code
     var zipCounts = {};
-    zipValues.forEach(row => {
+    zipValues.forEach(function(row) {
       var zip = String(row[0]).trim();
       if (zip && zip !== '' && zip.length === 5) {
         zipCounts[zip] = (zipCounts[zip] || 0) + 1;
@@ -1313,8 +1313,7 @@ function testHTMLAlignment() {
   } catch (e) {
     Logger.log('❌ FAIL: Cannot load CheckInInterface.html');
     Logger.log('   Error: ' + e.message);
-    Logger.log('
-💡 FIX: Make sure CheckInInterface.html exists with proper HTML content');
+    Logger.log('💡 FIX: Make sure CheckInInterface.html exists with proper HTML content');
     return false;
   }
   
@@ -1458,8 +1457,7 @@ function debugCheckIn() {
   Logger.log('');
   Logger.log('========================================');
   Logger.log('📊 CHECKING SHEET DATA:');
-  Logger.log('========================================
-');
+  Logger.log('========================================');
   
   // Get sheet data
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1743,11 +1741,11 @@ function getDetailedWallConnections() {
     // Analyze each category
     var analyses = [];
     
-    ANALYSIS_CATEGORIES.forEach(category => {
+    ANALYSIS_CATEGORIES.forEach(function(category) {
       // Group guests by value
       var valueGroups = {};
       
-      guests.forEach(guest => {
+      guests.forEach(function(guest) {
         var value = guest.demographics[category.name];
         if (value) {
           if (!valueGroups[value]) {
@@ -1758,7 +1756,7 @@ function getDetailedWallConnections() {
       });
       
       // Create connections for each value
-      Object.keys(valueGroups).forEach(value => {
+      Object.keys(valueGroups).forEach(function(value) {
         var uids = valueGroups[value];
         
         if (uids.length < 2) return;
@@ -1849,7 +1847,7 @@ function getAllZipData() {
     
     var headers = data[0];
     var colMap = {};
-    headers.forEach((h, i) => colMap[String(h).trim()] = i);
+    headers.forEach(function(h, i) { colMap[String(h).trim()] = i; });
     
     var zipCol = colMap['Current 5 Digit Zip Code'];
     var checkedInCol = colMap['Checked-In at Event'];
@@ -2025,7 +2023,7 @@ function getDDDViolations() {
     if (!uid) continue;
     
     // Check each violation column
-    Object.keys(violationColumns).forEach(violationType => {
+    Object.keys(violationColumns).forEach(function(violationType) {
       var colIndex = violationColumns[violationType];
       var hasViolation = row[colIndex] === 1 || row[colIndex] === '1';
       
@@ -2150,8 +2148,7 @@ function buildDemographicsSummary() {
 
   // Calculate overview metrics
   var totalCount = data.length - 1;
-  var checkedInCount = data.slice(1).filter(row => 
-    String(row[colIdx['Checked-In at Event']] || '').trim().toUpperCase() === 'Y'
+  var checkedInCount = data.slice(1).filter(function(row) { return String(row[colIdx['Checked-In at Event']] || '').trim().toUpperCase() === 'Y'
   ).length;
 
   // Build report sections
@@ -2215,7 +2212,7 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
     }
   }
 
-  var sortedValues = Object.keys(totalCounts).sort((a, b) => totalCounts[b] - totalCounts[a]);
+  var sortedValues = Object.keys(totalCounts).sort(function(a, b) { return totalCounts[b] - totalCounts[a]);
   var totalSum = 0;
   for (var key in totalCounts) {
     if (totalCounts.hasOwnProperty(key)) {
@@ -2234,7 +2231,7 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
     ['Category', 'Total', '% of Total', 'Checked-In', '% of Checked-In']
   ];
 
-  sortedValues.forEach(value => {
+  sortedValues.forEach(function(value) {
     var totalCount = totalCounts[value];
     var checkedInCount = checkedInCounts[value] || 0;
     var totalPct = ((totalCount / totalSum) * 100).toFixed(1);
@@ -2347,7 +2344,7 @@ function buildMusicPreferences_(data, colIdx) {
     total++;
   }
 
-  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var sorted = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]);
   var rows = [['MUSIC PREFERENCE DISTRIBUTION'], ['Genre', 'Count', 'Percentage']];
 
   for (var i = 0; i < sorted.length; i++) {
@@ -2371,7 +2368,7 @@ function buildTopArtists_(data, colIdx, limit) {
     counts[value] = (counts[value] || 0) + 1;
   }
 
-  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
+  var sorted = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]).slice(0, limit);
   var rows = [['TOP ' + limit + ' FAVORITE ARTISTS'], ['Rank', 'Artist', 'Mentions']];
 
   for (var idx = 0; idx < sorted.length; idx++) {
@@ -2409,10 +2406,10 @@ function buildTopInterests_(data, colIdx) {
     }
   }
 
-  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var sorted = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]);
   var rows = [['TOP INTERESTS'], ['Interest', 'Count', '% of Guests']];
 
-  sorted.forEach(([interest, count]) => {
+  sorted.forEach(function([interest, count]) {
     rows.push([interest, count, ((count / totalResponses) * 100).toFixed(1) + '%']);
   });
 
@@ -2438,8 +2435,8 @@ function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
   }
 
   var allGenres = new Set();
-  Object.values(crosstab).forEach(musicCounts => {
-    Object.keys(musicCounts).forEach(genre => allGenres.add(genre));
+  Object.values(crosstab).forEach(function(musicCounts) {
+    Object.keys(musicCounts).forEach(function(genre) { allGenres.add(genre); });
   });
   var genres = [];
   allGenres.forEach(function(val) { genres.push(val); });
@@ -2448,10 +2445,10 @@ function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
 
   var rows = [['MUSIC PREFERENCE BY ' + demoLabel], [demoCol].concat(genres).concat(['Total'])];
 
-  demos.forEach(demo => {
+  demos.forEach(function(demo) {
     var row = [demo];
     var rowTotal = 0;
-    genres.forEach(genre => {
+    genres.forEach(function(genre) {
       var count = crosstab[demo][genre] || 0;
       row.push(count);
       rowTotal += count;
@@ -2576,7 +2573,7 @@ function buildHostDuration_(data, colIdx) {
   }
 
   var order = ['No', 'Yes — 3–12 months', 'Yes — 1–3 years', 'Yes — 3–5 years', 'Yes — 5–10 years', 'Yes — more than 10 years'];
-  var sorted = Object.keys(counts).sort((a, b) => {
+  var sorted = Object.keys(counts).sort(function(a, b) { return {
     var idxA = order.indexOf(a);
     var idxB = order.indexOf(b);
     if (idxA === -1 && idxB === -1) return a.localeCompare(b);
@@ -2587,7 +2584,7 @@ function buildHostDuration_(data, colIdx) {
 
   var rows = [['FRIENDSHIP DURATION DISTRIBUTION'], ['Duration', 'Count', 'Percentage']];
 
-  sorted.forEach(duration => {
+  sorted.forEach(function(duration) {
     var count = counts[duration];
     rows.push([duration, count, ((count / total) * 100).toFixed(1) + '%']);
   });
@@ -2610,10 +2607,10 @@ function buildWhichHost_(data, colIdx) {
     total++;
   }
 
-  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var sorted = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]);
   var rows = [['WHICH HOST KNOWN LONGEST'], ['Host', 'Count', 'Percentage']];
 
-  sorted.forEach(([host, count]) => {
+  sorted.forEach(function([host, count]) {
     rows.push([host, count, ((count / total) * 100).toFixed(1) + '%']);
   });
 
@@ -2640,14 +2637,14 @@ function buildClosenessScores_(data, colIdx) {
   }
 
   var avg = total > 0 ? (sum / total).toFixed(2) : 'N/A';
-  var sorted = Object.keys(counts).sort((a, b) => Number(b) - Number(a));
+  var sorted = Object.keys(counts).sort(function(a, b) { return Number(b) - Number(a));
 
   var rows = [
     ['CLOSENESS SCORE DISTRIBUTION (1=Acquaintance, 5=Close Friend)'],
     ['Score', 'Count', 'Percentage']
   ];
 
-  sorted.forEach(score => {
+  sorted.forEach(function(score) {
     var count = counts[score];
     rows.push([score, count, ((count / total) * 100).toFixed(1) + '%']);
   });
@@ -2682,7 +2679,7 @@ function buildClosenessbyHost_(data, colIdx) {
 
   var rows = [['AVERAGE CLOSENESS BY HOST'], ['Host', 'Count', 'Average Score']];
 
-  Object.entries(hostScores).forEach(([host, data]) => {
+  Object.entries(hostScores).forEach(function([host, data]) {
     var avg = (data.sum / data.count).toFixed(2);
     rows.push([host, data.count, avg]);
   });
@@ -2728,7 +2725,7 @@ function buildAttendeeAnalysis() {
     ['Do you know the Host(s)?', 'HOST RELATIONSHIP']
   ];
 
-  compareFields.forEach(([colName, label]) => {
+  compareFields.forEach(function([colName, label]) {
     Array.prototype.push.apply(sections, buildAttendeeComparison_(data, colIdx, colName, label));
     sections.push(['']);
   });
@@ -2766,15 +2763,15 @@ function buildAttendeeComparison_(data, colIdx, colName, label) {
   allValues.forEach(function(val) { sorted.push(val); });
   sorted.sort();
 
-  var attendeeTotal = Object.values(attendeeCounts).reduce((a, b) => a + b, 0);
-  var noShowTotal = Object.values(noShowCounts).reduce((a, b) => a + b, 0);
+  var attendeeTotal = Object.values(attendeeCounts).reduce(function(a, b) { return a + b; }, 0);
+  var noShowTotal = Object.values(noShowCounts).reduce(function(a, b) { return a + b; }, 0);
 
   var rows = [
     [label + ' COMPARISON: ATTENDEES VS NO-SHOWS'],
     ['Category', 'Attendees', '% Attendees', 'No-Shows', '% No-Shows']
   ];
 
-  sorted.forEach(value => {
+  sorted.forEach(function(value) {
     var attendeeCount = attendeeCounts[value] || 0;
     var noShowCount = noShowCounts[value] || 0;
     var attendeePct = attendeeTotal > 0 ? ((attendeeCount / attendeeTotal) * 100).toFixed(1) : '0.0';
@@ -2826,7 +2823,7 @@ function buildGuestProfiles() {
     
     // Parse interests
     var interestsStr = String(row[colIdx['Your General Interests (Choose 3)']] || '').trim();
-    var interests = interestsStr.split(',').slice(0, 3).map(s => s.trim()).join(', ');
+    var interests = interestsStr.split(',').slice(0, 3).map(function(s) { return s.trim()).join(', ');
 
     profiles.push([
       row[colIdx['Screen Name']] || '',
@@ -2872,7 +2869,7 @@ function buildGuestProfiles() {
  */
 function getColumnMap_(header) {
   var map = {};
-  header.forEach((col, idx) => {
+  header.forEach(function(col, idx) {
     var colName = String(col || '').trim();
     if (colName) map[colName] = idx;
   });
@@ -2889,9 +2886,11 @@ function resolveColumnIndex_(colMap, targetName) {
   if (Object.prototype.hasOwnProperty.call(colMap, targetName)) {
     return colMap[targetName];
   }
-  var normalize = s => String(s || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
+  var normalize = function(s) {
+    return String(s || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+  };
   var normTarget = normalize(targetName);
   for (var key in colMap) {
     if (!Object.prototype.hasOwnProperty.call(colMap, key)) continue;
@@ -2919,10 +2918,10 @@ function writeSheet_(sheetName, data) {
   }
 
   // Find max columns
-  var maxCols = Math.max.apply(null, data.map(row => Array.isArray(row) ? row.length : 1));
+  var maxCols = Math.max.apply(null, data.map(function(row) { return Array.isArray(row) ? row.length : 1));
 
   // Pad rows to same length
-  var paddedRows = data.map(row => {
+  var paddedRows = data.map(function(row) { return {
     if (!Array.isArray(row)) return [row];
     var padded = row.slice();
     while (padded.length < maxCols) padded.push('');
@@ -2999,8 +2998,7 @@ function formatGenericReport_(sheetName) {
 function testConstants() {
   Logger.log('════════════════════════════════════════════════════════════════');
   Logger.log('🧪 TESTING CONSTANTS FROM CONFIG.GS');
-  Logger.log('════════════════════════════════════════════════════════════════
-');
+  Logger.log('════════════════════════════════════════════════════════════════');
   
   try {
     Logger.log('✅ CORE SHEET NAMES:');
@@ -3029,7 +3027,7 @@ function testConstants() {
     Logger.log('✅ ANALYSIS CATEGORIES:');
     Logger.log('   Total categories: ' + ANALYSIS_CATEGORIES.length);
     Logger.log('   First 3:');
-    ANALYSIS_CATEGORIES.slice(0, 3).forEach(cat => {
+    ANALYSIS_CATEGORIES.slice(0, 3).forEach(function(cat) {
       Logger.log('   • ' + cat.name + ' → "' + cat.header + '"');
     });
     Logger.log('');
@@ -3040,8 +3038,7 @@ function testConstants() {
     Logger.log('✅ No duplicate declaration errors!');
     Logger.log('✅ Config.gs is working correctly!');
     Logger.log('✅ Ready to run completeSystemCheck()');
-    Logger.log('════════════════════════════════════════════════════════════════
-');
+    Logger.log('════════════════════════════════════════════════════════════════');
     
     return true;
     
@@ -3059,8 +3056,7 @@ function testConstants() {
     Logger.log('4. ✓ Remove ALL "var" lines from Utilities.gs');
     Logger.log('5. ✓ Close and reopen Apps Script editor');
     Logger.log('6. ✓ Try running testConstants() again');
-    Logger.log('════════════════════════════════════════════════════════════════
-');
+    Logger.log('════════════════════════════════════════════════════════════════');
     
     return false;
   }
@@ -3073,8 +3069,7 @@ function testConstants() {
 function verifyNoDuplicates() {
   Logger.log('════════════════════════════════════════════════════════════════');
   Logger.log('🔍 VERIFYING NO DUPLICATE CONSTANTS');
-  Logger.log('════════════════════════════════════════════════════════════════
-');
+  Logger.log('════════════════════════════════════════════════════════════════');
   
   Logger.log('This test will pass if Config.gs is the ONLY place with constants.
 ');
@@ -3095,8 +3090,7 @@ function verifyNoDuplicates() {
   Logger.log('');
   Logger.log('After cleanup, run testConstants() to verify!
 ');
-  Logger.log('════════════════════════════════════════════════════════════════
-');
+  Logger.log('════════════════════════════════════════════════════════════════');
 }
 
 /**
@@ -3105,8 +3099,7 @@ function verifyNoDuplicates() {
 function showConstantsToRemove() {
   Logger.log('════════════════════════════════════════════════════════════════');
   Logger.log('🧹 CONSTANTS TO REMOVE FROM OTHER FILES');
-  Logger.log('════════════════════════════════════════════════════════════════
-');
+  Logger.log('════════════════════════════════════════════════════════════════');
   
   Logger.log('SEARCH for these in Code.gs, Utilities.gs, and other files:');
   Logger.log('Then DELETE any lines you find (except in Config.gs)
@@ -3135,11 +3128,10 @@ function showConstantsToRemove() {
   
   Logger.log('DELETE THESE LINES from Code.gs and Utilities.gs:');
   Logger.log('─────────────────────────────────────────────────────────────');
-  constantsToRemove.forEach((line, i) => {
+  constantsToRemove.forEach(function(line, i) {
     Logger.log((i + 1) + '. ' + line + ' = ...');
   });
-  Logger.log('─────────────────────────────────────────────────────────────
-');
+  Logger.log('─────────────────────────────────────────────────────────────');
   
   Logger.log('HOW TO SEARCH:');
   Logger.log('1. Open Code.gs');
@@ -3152,8 +3144,7 @@ function showConstantsToRemove() {
   Logger.log('8. Run testConstants() to verify
 ');
   
-  Logger.log('════════════════════════════════════════════════════════════════
-');
+  Logger.log('════════════════════════════════════════════════════════════════');
 }
 
 function checkConfig() {
@@ -3308,7 +3299,7 @@ function getZipCodesFromSheet() {
     
     // Count occurrences of each zip code
     var zipCounts = {};
-    zipValues.forEach(row => {
+    zipValues.forEach(function(row) {
       var zip = String(row[0]).trim();
       if (zip && zip !== '' && zip.length === 5) {
         zipCounts[zip] = (zipCounts[zip] || 0) + 1;
@@ -3388,7 +3379,7 @@ function getAllZipData() {
   var allZips = [];
   var totalRespondents = 0;
   
-  Object.keys(zipCounts).forEach(zip => {
+  Object.keys(zipCounts).forEach(function(zip) {
     totalRespondents += zipCounts[zip];
     
     if (zip !== '64110') {
@@ -3435,7 +3426,7 @@ function getDisplayPhotos() {
     
     var headers = data[0];
     var colMap = {};
-    headers.forEach((h, i) => colMap[String(h).trim()] = i);
+    headers.forEach(function(h, i) { colMap[String(h).trim()] = i; });
     
     var screenNameCol = colMap['Screen Name'];
     var checkedInCol = colMap['Checked-In at Event'];
@@ -3597,20 +3588,19 @@ function testPhotoLoading() {
   var guests = getDisplayPhotos();
   
   Logger.log('Total checked-in guests: ' + guests.length);
-  Logger.log('Guests with photos: ' + guests.filter(g => g.hasPhoto).length);
-  Logger.log('Guests without photos: ' + guests.filter(g => !g.hasPhoto).length);
+  Logger.log('Guests with photos: ' + guests.filter(function(g) { return g.hasPhoto).length);
+  Logger.log('Guests without photos: ' + guests.filter(function(g) { return !g.hasPhoto).length);
   Logger.log('');
   
   if (guests.length > 0) {
     Logger.log('Sample guests:');
-    guests.slice(0, 5).forEach(guest => {
+    guests.slice(0, 5).forEach(function(guest) {
       Logger.log('  • ' + guest.screenName);
       Logger.log('    Photo: ' + (guest.hasPhoto ? '✅ ' + guest.photoUrl : '❌ No photo'));
     });
   }
   
-  Logger.log('
-=== END TEST ===');
+  Logger.log('=== END TEST ===');
 }
 
 /**
@@ -4037,7 +4027,7 @@ function testAllPages() {
   var pages = ['display', 'checkin', 'intro', 'wall', 'mm', 'msa', 'network', 'map'];
   var results = [];
   
-  pages.forEach(page => {
+  pages.forEach(function(page) {
     try {
       var mockEvent = { parameter: { page: page } };
       var result = doGet(mockEvent);
