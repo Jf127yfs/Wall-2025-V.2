@@ -287,26 +287,26 @@ function testDisplayPage() {
 
 function getZipCodesFromSheet() {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName('Form Responses 1');
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Form Responses 1');
     
     if (!sheet) {
       throw new Error('Sheet "Form Responses 1" not found');
     }
     
-    const lastRow = sheet.getLastRow();
+    var lastRow = sheet.getLastRow();
     
     if (lastRow < 2) {
       return {};
     }
     
-    const zipRange = sheet.getRange(2, 5, lastRow - 1, 1);
-    const zipValues = zipRange.getValues();
+    var zipRange = sheet.getRange(2, 5, lastRow - 1, 1);
+    var zipValues = zipRange.getValues();
     
     // Count occurrences of each zip code
-    const zipCounts = {};
+    var zipCounts = {};
     zipValues.forEach(row => {
-      const zip = String(row[0]).trim();
+      var zip = String(row[0]).trim();
       if (zip && zip !== '' && zip.length === 5) {
         zipCounts[zip] = (zipCounts[zip] || 0) + 1;
       }
@@ -322,11 +322,11 @@ function getZipCodesFromSheet() {
 
 function getAddressCoordinates(address) {
   try {
-    const geocoder = Maps.newGeocoder();
-    const location = geocoder.geocode(address);
+    var geocoder = Maps.newGeocoder();
+    var location = geocoder.geocode(address);
     
     if (location.status === 'OK' && location.results.length > 0) {
-      const result = location.results[0];
+      var result = location.results[0];
       return {
         lat: result.geometry.location.lat,
         lng: result.geometry.location.lng
@@ -341,11 +341,11 @@ function getAddressCoordinates(address) {
 
 function getZipCodeCoordinates(zipCode) {
   try {
-    const geocoder = Maps.newGeocoder();
-    const location = geocoder.geocode(zipCode + ', USA');
+    var geocoder = Maps.newGeocoder();
+    var location = geocoder.geocode(zipCode + ', USA');
     
     if (location.status === 'OK' && location.results.length > 0) {
-      const result = location.results[0];
+      var result = location.results[0];
       return {
         lat: result.geometry.location.lat,
         lng: result.geometry.location.lng,
@@ -420,12 +420,12 @@ function doGet(e) {
     }
     
     // Get page parameter from URL (?page=display)
-    const page = (e.parameter.page || 'display').toLowerCase();
+    var page = (e.parameter.page || 'display').toLowerCase();
     
     Logger.log('doGet called with page: ' + page);
     
     // Route to appropriate page
-    let template;
+    var template;
     switch(page) {
       case 'display':
         template = HtmlService.createTemplateFromFile('Display');
@@ -454,7 +454,7 @@ function doGet(e) {
     template.deploymentUrl = ScriptApp.getService().getUrl();
     
     // Evaluate template and set properties
-    const output = template.evaluate()
+    var output = template.evaluate()
       .setTitle('Party Wall System')
       .setFaviconUrl('https://www.google.com/images/favicon.ico')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1')
@@ -492,8 +492,8 @@ function checkInGuest(payload) {
   Logger.log('Check-in attempt: ZIP=' + zip + ', Gender=' + genderInput + ', DOB=' + dobInput);
 
   // STEP 2: Access the spreadsheet and sheet
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
   
   if (!sh) {
     Logger.log('ERROR: Sheet not found: ' + SHEET_NAME);
@@ -525,9 +525,9 @@ function checkInGuest(payload) {
   Logger.log('Found columns - Gender: ' + genderCol + ', DOB: ' + dobCol);
 
   // STEP 5: Normalize search criteria
-  const wantZip = normalizeZip_(zip);
-  const wantGD = normalizeGender_(genderInput);
-  const wantMD = parseMonthDay_(dobInput);
+  var wantZip = normalizeZip_(zip);
+  var wantGD = normalizeGender_(genderInput);
+  var wantMD = parseMonthDay_(dobInput);
   
   if (!wantMD) {
     Logger.log('ERROR: Invalid DOB format: ' + dobInput);
@@ -537,18 +537,18 @@ function checkInGuest(payload) {
   Logger.log('Searching for: ZIP=' + wantZip + ', Gender=' + wantGD + ', DOB=' + wantMD.m + '/' + wantMD.d);
 
   // STEP 6: Search through all rows for exact match
-  const matches = [];
-  for (let r = 1; r < data.length; r++) {
-    const row = data[r];
+  var matches = [];
+  for (var r = 1; r < data.length; r++) {
+    var row = data[r];
     
-    const rowZip = normalizeZip_(safeString_(row[ZIP_COL - 1]));
-    const rowGender = normalizeGender_(safeString_(row[genderCol]));
-    const rowDOBRaw = row[dobCol];
+    var rowZip = normalizeZip_(safeString_(row[ZIP_COL - 1]));
+    var rowGender = normalizeGender_(safeString_(row[genderCol]));
+    var rowDOBRaw = row[dobCol];
 
     if (!rowZip || rowZip !== wantZip) continue;
     if (rowGender && wantGD && rowGender !== wantGD) continue;
 
-    const md = monthDayFromCell_(rowDOBRaw);
+    var md = monthDayFromCell_(rowDOBRaw);
     if (!md || md.m !== wantMD.m || md.d !== wantMD.d) continue;
 
     matches.push({ r, row });
@@ -567,11 +567,11 @@ function checkInGuest(payload) {
   }
 
   // STEP 8: Extract guest data from the single match
-  const match = matches[0];
-  const sheetRow = match.r + 1;
-  const screenName = safeString_(match.row[SCREEN_NAME_COL - 1]);
-  const uid = safeString_(match.row[UID_COL - 1]);
-  const alreadyCheckedIn = safeString_(match.row[CHECKED_FLAG_COL - 1]).toUpperCase() === 'Y';
+  var match = matches[0];
+  var sheetRow = match.r + 1;
+  var screenName = safeString_(match.row[SCREEN_NAME_COL - 1]);
+  var uid = safeString_(match.row[UID_COL - 1]);
+  var alreadyCheckedIn = safeString_(match.row[CHECKED_FLAG_COL - 1]).toUpperCase() === 'Y';
 
   // STEP 9: Check if already checked in
   if (alreadyCheckedIn) {
@@ -588,7 +588,7 @@ function checkInGuest(payload) {
   Logger.log('Check-in successful: ' + screenName + ' (' + uid + ') at row ' + sheetRow);
 
   // STEP 10: Mark guest as checked in with timestamp
-  const lock = LockService.getScriptLock();
+  var lock = LockService.getScriptLock();
   try {
     lock.tryLock(10000);
     
@@ -623,8 +623,8 @@ function checkInGuest(payload) {
 
 function updateGuestScreenName(payload) {
   // STEP 1: Extract and validate input
-  const uid = safeString_(payload && payload.uid);
-  const newScreenName = safeString_(payload && payload.newScreenName);
+  var uid = safeString_(payload && payload.uid);
+  var newScreenName = safeString_(payload && payload.newScreenName);
 
   if (!uid || !newScreenName) {
     Logger.log('Update failed: Missing UID or screen name');
@@ -644,18 +644,18 @@ function updateGuestScreenName(payload) {
   }
 
   // STEP 3: Access the spreadsheet
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     Logger.log('ERROR: Sheet not found: ' + SHEET_NAME);
     return { ok: false, message: 'Sheet not found.' };
   }
 
   // STEP 4: Find guest by UID
-  const data = sh.getDataRange().getValues();
-  let targetRow = -1;
+  var data = sh.getDataRange().getValues();
+  var targetRow = -1;
   
-  for (let r = 1; r < data.length; r++) {
+  for (var r = 1; r < data.length; r++) {
     if (safeString_(data[r][UID_COL - 1]) === uid) {
       targetRow = r + 1;
       Logger.log('Found guest at row ' + targetRow);
@@ -669,7 +669,7 @@ function updateGuestScreenName(payload) {
   }
 
   // STEP 5: Update the screen name
-  const lock = LockService.getScriptLock();
+  var lock = LockService.getScriptLock();
   try {
     lock.tryLock(10000);
     
@@ -699,10 +699,10 @@ function updateGuestScreenName(payload) {
 function uploadGuestPhoto(payload) {
   try {
     // STEP 1: Extract and validate input
-    const uid = safeString_(payload && payload.uid);
-    const fileName = safeString_(payload && payload.fileName);
-    const mimeType = safeString_(payload && payload.mimeType);
-    const base64Data = payload && payload.base64Data;
+    var uid = safeString_(payload && payload.uid);
+    var fileName = safeString_(payload && payload.fileName);
+    var mimeType = safeString_(payload && payload.mimeType);
+    var base64Data = payload && payload.base64Data;
 
     if (!uid || !base64Data) {
       Logger.log('Upload failed: Missing UID or photo data');
@@ -712,7 +712,7 @@ function uploadGuestPhoto(payload) {
     Logger.log('Photo upload started: UID=' + uid + ', File=' + fileName);
 
     // STEP 2: Decode base64 data to binary blob
-    const blob = Utilities.newBlob(
+    var blob = Utilities.newBlob(
       Utilities.base64Decode(base64Data),
       mimeType || 'image/jpeg',
       fileName || 'photo.jpg'
@@ -721,32 +721,32 @@ function uploadGuestPhoto(payload) {
     Logger.log('Photo decoded: ' + blob.getBytes().length + ' bytes');
 
     // STEP 3: Get or create photos folder in Google Drive
-    const folder = getOrCreatePhotosFolder_();
+    var folder = getOrCreatePhotosFolder_();
     Logger.log('Using Drive folder: ' + folder.getName() + ' (ID: ' + folder.getId() + ')');
 
     // STEP 4: Create unique filename
-    const timestamp = new Date().getTime();
-    const cleanFileName = (fileName || 'photo.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
-    const uniqueFileName = uid + '_' + timestamp + '_' + cleanFileName;
+    var timestamp = new Date().getTime();
+    var cleanFileName = (fileName || 'photo.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
+    var uniqueFileName = uid + '_' + timestamp + '_' + cleanFileName;
     
     Logger.log('Saving as: ' + uniqueFileName);
 
     // STEP 5: Upload file to Drive
-    const file = folder.createFile(blob);
+    var file = folder.createFile(blob);
     file.setName(uniqueFileName);
     file.setDescription('Photo for guest UID: ' + uid + ' uploaded at ' + new Date().toString());
 
     // STEP 6: Set file permissions
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-    const fileUrl = file.getUrl();
-    const fileId = file.getId();
+    var fileUrl = file.getUrl();
+    var fileId = file.getId();
     
     Logger.log('File uploaded: ' + fileUrl);
 
     // STEP 7: Update spreadsheet with photo URL
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sh = ss.getSheetByName(SHEET_NAME);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName(SHEET_NAME);
     
     if (!sh) {
       Logger.log('WARNING: Sheet not found, but photo was uploaded');
@@ -759,10 +759,10 @@ function uploadGuestPhoto(payload) {
     }
 
     // STEP 8: Find guest by UID
-    const data = sh.getDataRange().getValues();
-    let targetRow = -1;
+    var data = sh.getDataRange().getValues();
+    var targetRow = -1;
     
-    for (let r = 1; r < data.length; r++) {
+    for (var r = 1; r < data.length; r++) {
       if (safeString_(data[r][UID_COL - 1]) === uid) {
         targetRow = r + 1;
         break;
@@ -780,7 +780,7 @@ function uploadGuestPhoto(payload) {
     }
 
     // STEP 9: Save photo URL to spreadsheet
-    const lock = LockService.getScriptLock();
+    var lock = LockService.getScriptLock();
     try {
       lock.tryLock(10000);
       
@@ -821,10 +821,10 @@ function safeString_(val) {
 }
 
 function findHeaderIndex_(headers, possibilities) {
-  for (let p of possibilities) {
-    const norm = p.toLowerCase().replace(/[^a-z0-9]/g, '');
-    for (let i = 0; i < headers.length; i++) {
-      const h = headers[i].toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (var p of possibilities) {
+    var norm = p.toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (var i = 0; i < headers.length; i++) {
+      var h = headers[i].toLowerCase().replace(/[^a-z0-9]/g, '');
       if (h === norm) return i;
     }
   }
@@ -832,12 +832,12 @@ function findHeaderIndex_(headers, possibilities) {
 }
 
 function normalizeZip_(zip) {
-  const cleaned = zip.replace(/[^0-9]/g, '');
+  var cleaned = zip.replace(/[^0-9]/g, '');
   return cleaned.length >= 5 ? cleaned.substring(0, 5) : cleaned;
 }
 
 function normalizeGender_(g) {
-  const lower = g.toLowerCase();
+  var lower = g.toLowerCase();
   if (lower.includes('man') && !lower.includes('woman')) return 'man';
   if (lower.includes('woman')) return 'woman';
   if (lower.includes('non') || lower.includes('binary')) return 'nonbinary';
@@ -846,7 +846,7 @@ function normalizeGender_(g) {
 }
 
 function parseMonthDay_(str) {
-  const match = str.match(/^(\d{1,2})[\/\-](\d{1,2})$/);
+  var match = str.match(/^(\d{1,2})[\/\-](\d{1,2})$/);
   if (!match) return null;
   return { m: parseInt(match[1], 10), d: parseInt(match[2], 10) };
 }
@@ -897,18 +897,18 @@ function monthDayFromCell_(val) {
   // Handle Date objects (most common in Google Sheets)
   if (val instanceof Date) {
     // Get month and day from Date object
-    const month = val.getMonth() + 1; // getMonth() returns 0-11
-    const day = val.getDate();
+    var month = val.getMonth() + 1; // getMonth() returns 0-11
+    var day = val.getDate();
     return { m: month, d: day };
   }
   
   // Handle string formats
-  const str = String(val).trim();
+  var str = String(val).trim();
   
   // If it looks like a full date string from Date.toString()
   if (str.includes('GMT') || str.includes('UTC')) {
     try {
-      const dateObj = new Date(str);
+      var dateObj = new Date(str);
       if (!isNaN(dateObj.getTime())) {
         return { m: dateObj.getMonth() + 1, d: dateObj.getDate() };
       }
@@ -918,13 +918,13 @@ function monthDayFromCell_(val) {
   }
   
   // Pattern matching for various string formats
-  const patterns = [
+  var patterns = [
     /^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-]\d{2,4})?$/, // MM/DD or MM/DD/YYYY
     /^(\d{1,2})\/(\d{1,2})$/                         // MM/DD
   ];
   
-  for (let pattern of patterns) {
-    const match = str.match(pattern);
+  for (var pattern of patterns) {
+    var match = str.match(pattern);
     if (match) {
       return { m: parseInt(match[1], 10), d: parseInt(match[2], 10) };
     }
@@ -934,7 +934,7 @@ function monthDayFromCell_(val) {
 }
 
 function getOrCreatePhotosFolder_() {
-  const folders = DriveApp.getFoldersByName(PHOTOS_FOLDER_NAME);
+  var folders = DriveApp.getFoldersByName(PHOTOS_FOLDER_NAME);
   if (folders.hasNext()) {
     return folders.next();
   }
@@ -947,24 +947,24 @@ function getOrCreatePhotosFolder_() {
 // ============================================
 
 function testSheetStructure() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
   
   if (!sh) {
     Logger.log('ERROR: Sheet not found: ' + SHEET_NAME);
     return;
   }
   
-  const headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
   Logger.log('=== SHEET STRUCTURE ===');
   Logger.log('Sheet: ' + SHEET_NAME);
   Logger.log('Total columns: ' + headers.length);
   Logger.log('');
   Logger.log('Column mapping:');
   
-  for (let i = 0; i < headers.length; i++) {
-    const colNum = i + 1;
-    const colLetter = String.fromCharCode(65 + (i % 26));
+  for (var i = 0; i < headers.length; i++) {
+    var colNum = i + 1;
+    var colLetter = String.fromCharCode(65 + (i % 26));
     Logger.log('  Column ' + colNum + ' (' + colLetter + '): ' + headers[i]);
   }
   
@@ -981,7 +981,7 @@ function testSheetStructure() {
 function testCheckIn() {
   Logger.log('=== TESTING CHECK-IN ===');
   
-  const result = checkInGuest({
+  var result = checkInGuest({
     zip: '64110',
     gender: 'man',
     dob: '10/07'
@@ -1011,7 +1011,7 @@ function testEverything() {
   Logger.log('🧪 COMPREHENSIVE SYSTEM TEST');
   Logger.log('========================================');
   
-  let allPassed = true;
+  var allPassed = true;
   
   // Test 1: Sheet Structure
   Logger.log('TEST 1: Sheet Structure');
@@ -1063,8 +1063,8 @@ function testEverything() {
  * Test 1: Verify sheet has all required columns
  */
 function testSheetColumns() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
   
   if (!sh) {
     Logger.log('❌ FAIL: Sheet "' + SHEET_NAME + '" not found');
@@ -1072,14 +1072,14 @@ function testSheetColumns() {
     return false;
   }
   
-  const headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
-  const totalCols = headers.length;
+  var headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var totalCols = headers.length;
   
   Logger.log('Sheet: ' + SHEET_NAME);
   Logger.log('Total columns: ' + totalCols);
   
   // Check required columns
-  const required = [
+  var required = [
     {col: ZIP_COL, name: 'Current 5 Digit Zip Code'},
     {col: SCREEN_NAME_COL, name: 'Screen Name'},
     {col: UID_COL, name: 'UID'},
@@ -1088,10 +1088,10 @@ function testSheetColumns() {
     {col: PHOTO_URL_COL, name: 'Photo URL'}
   ];
   
-  let allFound = true;
+  var allFound = true;
   
-  for (let req of required) {
-    const actualName = headers[req.col - 1];
+  for (var req of required) {
+    var actualName = headers[req.col - 1];
     
     if (!actualName) {
       Logger.log('❌ FAIL: Column ' + req.col + ' (' + req.name + ') is MISSING');
@@ -1116,16 +1116,16 @@ function testSheetColumns() {
  * Test 2: Verify backend functions exist and are callable
  */
 function testBackendFunctions() {
-  const requiredFunctions = [
+  var requiredFunctions = [
     'checkInGuest',
     'updateGuestScreenName',
     'uploadGuestPhoto',
     'doGet'
   ];
   
-  let allExist = true;
+  var allExist = true;
   
-  for (let funcName of requiredFunctions) {
+  for (var funcName of requiredFunctions) {
     if (typeof this[funcName] === 'function') {
       Logger.log('✅ ' + funcName + '() exists');
     } else {
@@ -1141,7 +1141,7 @@ function testBackendFunctions() {
   
   // Test doGet returns HTML
   try {
-    const output = doGet();
+    var output = doGet();
     if (output && output.getContent) {
       Logger.log('✅ doGet() returns valid HTML output');
     } else {
@@ -1162,15 +1162,15 @@ function testBackendFunctions() {
  * FIXED VERSION - properly converts Date objects to MM/DD format
  */
 function testSampleCheckIn() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
   
   if (!sh) {
     Logger.log('❌ FAIL: Cannot test - sheet not found');
     return false;
   }
   
-  const data = sh.getDataRange().getValues();
+  var data = sh.getDataRange().getValues();
   if (data.length < 2) {
     Logger.log('⚠️  SKIP: No guest data to test with');
     Logger.log('   Add some guests to "Form Responses (Clean)" first');
@@ -1178,40 +1178,40 @@ function testSampleCheckIn() {
   }
   
   // Get first guest's data
-  const headers = data[0];
-  const firstGuest = data[1];
+  var headers = data[0];
+  var firstGuest = data[1];
   
-  const zipCol = headers.indexOf('Current 5 Digit Zip Code');
-  const genderCol = headers.indexOf('Self-Identified Gender');
-  const dobCol = headers.indexOf('Birthday (MM/DD)');
-  const screenNameCol = headers.indexOf('Screen Name');
+  var zipCol = headers.indexOf('Current 5 Digit Zip Code');
+  var genderCol = headers.indexOf('Self-Identified Gender');
+  var dobCol = headers.indexOf('Birthday (MM/DD)');
+  var screenNameCol = headers.indexOf('Screen Name');
   
   if (zipCol === -1 || genderCol === -1 || dobCol === -1) {
     Logger.log('❌ FAIL: Required columns not found in sheet');
     return false;
   }
   
-  const testZip = String(firstGuest[zipCol] || '').trim();
-  const testGender = String(firstGuest[genderCol] || '').trim().toLowerCase();
-  const rawDOB = firstGuest[dobCol];
-  const expectedName = String(firstGuest[screenNameCol] || '').trim();
+  var testZip = String(firstGuest[zipCol] || '').trim();
+  var testGender = String(firstGuest[genderCol] || '').trim().toLowerCase();
+  var rawDOB = firstGuest[dobCol];
+  var expectedName = String(firstGuest[screenNameCol] || '').trim();
   
   // CRITICAL FIX: Convert DOB to MM/DD format
-  let formattedDOB;
+  var formattedDOB;
   
   if (rawDOB instanceof Date) {
     // If it's a Date object, extract month and day
-    const month = String(rawDOB.getMonth() + 1).padStart(2, '0');
-    const day = String(rawDOB.getDate()).padStart(2, '0');
+    var month = String(rawDOB.getMonth() + 1).padStart(2, '0');
+    var day = String(rawDOB.getDate()).padStart(2, '0');
     formattedDOB = month + '/' + day;
     Logger.log('Converted Date object to MM/DD format');
   } else {
     // If it's a string, extract MM/DD only
-    const dobStr = String(rawDOB).trim();
-    const dobParts = dobStr.split('/');
+    var dobStr = String(rawDOB).trim();
+    var dobParts = dobStr.split('/');
     if (dobParts.length >= 2) {
-      const month = dobParts[0].padStart(2, '0');
-      const day = dobParts[1].padStart(2, '0');
+      var month = dobParts[0].padStart(2, '0');
+      var day = dobParts[1].padStart(2, '0');
       formattedDOB = month + '/' + day;
     } else {
       formattedDOB = dobStr;
@@ -1232,7 +1232,7 @@ function testSampleCheckIn() {
   
   // Test check-in with properly formatted data
   try {
-    const result = checkInGuest({
+    var result = checkInGuest({
       zip: testZip,
       gender: testGender,
       dob: formattedDOB
@@ -1270,17 +1270,17 @@ Check-in result:');
  * ALSO UPDATE testHTMLAlignment to be less strict
  */
 function testHTMLAlignment() {
-  let allAligned = true;
+  var allAligned = true;
   
   // Test that HTML file exists
   try {
-    const html = HtmlService.createHtmlOutputFromFile('CheckInInterface');
-    const content = html.getContent();
+    var html = HtmlService.createHtmlOutputFromFile('CheckInInterface');
+    var content = html.getContent();
     
     Logger.log('✅ CheckInInterface.html exists and is loadable');
     
     // Check if HTML contains required elements
-    const requiredElements = [
+    var requiredElements = [
       'checkInForm',
       'zip',
       'gender',
@@ -1290,7 +1290,7 @@ function testHTMLAlignment() {
       'photoInput'
     ];
     
-    for (let elemId of requiredElements) {
+    for (var elemId of requiredElements) {
       if (content.includes('id="' + elemId + '"')) {
         Logger.log('✅ HTML has element: ' + elemId);
       } else {
@@ -1300,13 +1300,13 @@ function testHTMLAlignment() {
     }
     
     // Check if HTML calls correct backend functions (more flexible check)
-    const requiredCalls = [
+    var requiredCalls = [
       {name: 'checkInGuest', pattern: /google\.script\.run[.\s\S]*checkInGuest/},
       {name: 'updateGuestScreenName', pattern: /google\.script\.run[.\s\S]*updateGuestScreenName/},
       {name: 'uploadGuestPhoto', pattern: /google\.script\.run[.\s\S]*uploadGuestPhoto/}
     ];
     
-    for (let call of requiredCalls) {
+    for (var call of requiredCalls) {
       if (call.pattern.test(content)) {
         Logger.log('✅ HTML calls: ' + call.name);
       } else {
@@ -1347,7 +1347,7 @@ function testCheckInWithMyData() {
   Logger.log('========================================');
   
   // ⬇️⬇️⬇️ UPDATE THESE WITH REAL DATA FROM YOUR SHEET ⬇️⬇️⬇️
-  const testData = {
+  var testData = {
     zip: '64110',      // ← Change this
     gender: 'man',     // ← Change this (man/woman/nonbinary/other)
     dob: '10/07'       // ← Change this (MM/DD format)
@@ -1361,7 +1361,7 @@ function testCheckInWithMyData() {
   Logger.log('');
   
   try {
-    const result = checkInGuest(testData);
+    var result = checkInGuest(testData);
     
     Logger.log('Result:');
     Logger.log(JSON.stringify(result, null, 2));
@@ -1401,8 +1401,8 @@ function testScreenNameUpdate() {
   Logger.log('========================================');
   
   // ⬇️⬇️⬇️ UPDATE THESE ⬇️⬇️⬇️
-  const testUID = 'BW-902';           // ← Change to a real UID from your sheet
-  const newName = 'TestName123';       // ← Change to your desired test name
+  var testUID = 'BW-902';           // ← Change to a real UID from your sheet
+  var newName = 'TestName123';       // ← Change to your desired test name
   // ⬆️⬆️⬆️ UPDATE THESE ⬆️⬆️⬆️
   
   Logger.log('Testing screen name update:');
@@ -1411,7 +1411,7 @@ function testScreenNameUpdate() {
   Logger.log('');
   
   try {
-    const result = updateGuestScreenName({
+    var result = updateGuestScreenName({
       uid: testUID,
       newScreenName: newName
     });
@@ -1443,7 +1443,7 @@ function debugCheckIn() {
   Logger.log('========================================');
   
   // ⬇️⬇️⬇️ ENTER THE DATA YOU'RE TRYING TO CHECK IN WITH ⬇️⬇️⬇️
-  const searchData = {
+  var searchData = {
     zip: '64110',      // ← What you entered in the form
     gender: 'man',     // ← What you selected
     dob: '05/18'       // ← What you entered (MM/DD)
@@ -1457,9 +1457,9 @@ function debugCheckIn() {
   Logger.log('');
   
   // Normalize search data (same way the check-in function does)
-  const wantZip = normalizeZip_(searchData.zip);
-  const wantGender = normalizeGender_(searchData.gender);
-  const wantDOB = parseMonthDay_(searchData.dob);
+  var wantZip = normalizeZip_(searchData.zip);
+  var wantGender = normalizeGender_(searchData.gender);
+  var wantDOB = parseMonthDay_(searchData.dob);
   
   Logger.log('🔧 AFTER NORMALIZATION:');
   Logger.log('  ZIP: "' + wantZip + '"');
@@ -1472,20 +1472,20 @@ function debugCheckIn() {
 ');
   
   // Get sheet data
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
   
   if (!sh) {
     Logger.log('❌ ERROR: Sheet not found!');
     return;
   }
   
-  const data = sh.getDataRange().getValues();
-  const headers = data[0].map(safeString_);
+  var data = sh.getDataRange().getValues();
+  var headers = data[0].map(safeString_);
   
   // Find columns
-  const genderCol = findHeaderIndex_(headers, ['self-identified gender', 'gender', 'sex']);
-  const dobCol = findHeaderIndex_(headers, ['birthday (mm/dd)', 'birthday', 'dob', 'date of birth']);
+  var genderCol = findHeaderIndex_(headers, ['self-identified gender', 'gender', 'sex']);
+  var dobCol = findHeaderIndex_(headers, ['birthday (mm/dd)', 'birthday', 'dob', 'date of birth']);
   
   Logger.log('Column positions:');
   Logger.log('  ZIP: Column ' + ZIP_COL + ' (0-indexed: ' + (ZIP_COL - 1) + ')');
@@ -1497,20 +1497,20 @@ function debugCheckIn() {
   Logger.log('First 5 guests in sheet:');
   Logger.log('----------------------------------------');
   
-  for (let r = 1; r < Math.min(6, data.length); r++) {
-    const row = data[r];
+  for (var r = 1; r < Math.min(6, data.length); r++) {
+    var row = data[r];
     
-    const rowZipRaw = row[ZIP_COL - 1];
-    const rowZip = normalizeZip_(safeString_(rowZipRaw));
+    var rowZipRaw = row[ZIP_COL - 1];
+    var rowZip = normalizeZip_(safeString_(rowZipRaw));
     
-    const rowGenderRaw = row[genderCol];
-    const rowGender = normalizeGender_(safeString_(rowGenderRaw));
+    var rowGenderRaw = row[genderCol];
+    var rowGender = normalizeGender_(safeString_(rowGenderRaw));
     
-    const rowDOBRaw = row[dobCol];
-    const rowDOB = monthDayFromCell_(rowDOBRaw);
+    var rowDOBRaw = row[dobCol];
+    var rowDOB = monthDayFromCell_(rowDOBRaw);
     
-    const rowScreenName = row[SCREEN_NAME_COL - 1];
-    const rowUID = row[UID_COL - 1];
+    var rowScreenName = row[SCREEN_NAME_COL - 1];
+    var rowUID = row[UID_COL - 1];
     
     Logger.log('Row ' + (r + 1) + ': ' + rowScreenName + ' (' + rowUID + ')');
     Logger.log('  ZIP (raw): "' + rowZipRaw + '"');
@@ -1521,9 +1521,9 @@ function debugCheckIn() {
     Logger.log('  DOB (parsed): Month=' + (rowDOB ? rowDOB.m : 'null') + ', Day=' + (rowDOB ? rowDOB.d : 'null'));
     
     // Check if this row matches
-    let zipMatch = rowZip === wantZip;
-    let genderMatch = rowGender === wantGender;
-    let dobMatch = rowDOB && rowDOB.m === wantDOB.m && rowDOB.d === wantDOB.d;
+    var zipMatch = rowZip === wantZip;
+    var genderMatch = rowGender === wantGender;
+    var dobMatch = rowDOB && rowDOB.m === wantDOB.m && rowDOB.d === wantDOB.d;
     
     Logger.log('  MATCH CHECK:');
     Logger.log('    ZIP Match: ' + (zipMatch ? '✅' : '❌') + ' (' + rowZip + ' vs ' + wantZip + ')');
@@ -1562,37 +1562,37 @@ function showAllGuests() {
   Logger.log('📋 ALL GUESTS IN SHEET');
   Logger.log('========================================');
   
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
   
   if (!sh) {
     Logger.log('❌ ERROR: Sheet not found!');
     return;
   }
   
-  const data = sh.getDataRange().getValues();
-  const headers = data[0];
+  var data = sh.getDataRange().getValues();
+  var headers = data[0];
   
-  const genderCol = headers.indexOf('Self-Identified Gender');
-  const dobCol = headers.indexOf('Birthday (MM/DD)');
+  var genderCol = headers.indexOf('Self-Identified Gender');
+  var dobCol = headers.indexOf('Birthday (MM/DD)');
   
   Logger.log('Total guests: ' + (data.length - 1));
   Logger.log('');
   
-  for (let r = 1; r < data.length; r++) {
-    const row = data[r];
+  for (var r = 1; r < data.length; r++) {
+    var row = data[r];
     
-    const zip = row[ZIP_COL - 1];
-    const gender = row[genderCol];
-    const dob = row[dobCol];
-    const screenName = row[SCREEN_NAME_COL - 1];
-    const uid = row[UID_COL - 1];
+    var zip = row[ZIP_COL - 1];
+    var gender = row[genderCol];
+    var dob = row[dobCol];
+    var screenName = row[SCREEN_NAME_COL - 1];
+    var uid = row[UID_COL - 1];
     
     // Convert DOB if it's a Date object
-    let dobFormatted;
+    var dobFormatted;
     if (dob instanceof Date) {
-      const month = String(dob.getMonth() + 1).padStart(2, '0');
-      const day = String(dob.getDate()).padStart(2, '0');
+      var month = String(dob.getMonth() + 1).padStart(2, '0');
+      var day = String(dob.getDate()).padStart(2, '0');
       dobFormatted = month + '/' + day;
     } else {
       dobFormatted = String(dob);
@@ -1618,14 +1618,14 @@ function showAllGuests() {
  */
 function getWallData() {
   try {
-    const ss = SpreadsheetApp.getActive();
-    const sheet = ss.getSheetByName(WALL_CLEAN_SHEET);
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(WALL_CLEAN_SHEET);
     
     if (!sheet) {
       throw new Error('Clean sheet not found');
     }
     
-    const data = sheet.getDataRange().getValues();
+    var data = sheet.getDataRange().getValues();
     if (data.length < 2) {
       return [];
     }
@@ -1645,30 +1645,30 @@ function getWallData() {
       throw new Error('Required columns not found');
     }
     
-    const guests = [];
+    var guests = [];
     
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
       
       // Only guests who actually checked in at event
-      const checkedInAtEvent = String(row[checkedInCol] || '').trim().toUpperCase();
+      var checkedInAtEvent = String(row[checkedInCol] || '').trim().toUpperCase();
       if (checkedInAtEvent !== 'Y') {
         continue;
       }
       
-      const uid = String(row[uidCol] || '').trim();
-      const screenName = String(row[screenNameCol] || '').trim();
+      var uid = String(row[uidCol] || '').trim();
+      var screenName = String(row[screenNameCol] || '').trim();
       
       if (!uid || !screenName) continue;
       
       // Format check-in time
-      let checkedAt = 'PRESENT';
+      var checkedAt = 'PRESENT';
       if (timestampCol !== undefined && row[timestampCol]) {
-        const timestamp = row[timestampCol];
+        var timestamp = row[timestampCol];
         if (timestamp instanceof Date) {
           checkedAt = Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'HH:mm');
         } else if (typeof timestamp === 'string') {
-          const match = timestamp.match(/(\d{1,2}):(\d{2})/);
+          var match = timestamp.match(/(\d{1,2}):(\d{2})/);
           if (match) {
             checkedAt = match[0];
           }
@@ -1696,20 +1696,20 @@ function getWallData() {
  */
 function getDetailedWallConnections() {
   try {
-    const ss = SpreadsheetApp.getActive();
-    const sheet = ss.getSheetByName(WALL_CLEAN_SHEET);
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(WALL_CLEAN_SHEET);
     
     if (!sheet) {
       return { error: 'Clean sheet not found' };
     }
     
-    const data = sheet.getDataRange().getValues();
+    var data = sheet.getDataRange().getValues();
     if (data.length < 2) {
       return { error: 'No data found' };
     }
     
-    const headers = data[0];
-    const colMap = {};
+    var headers = data[0];
+    var colMap = {};
     for (var i = 0; i < headers.length; i++) {
       var h = headers[i];
       colMap[String(h).trim()] = i;
@@ -1723,14 +1723,14 @@ function getDetailedWallConnections() {
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
       
-      const checkedIn = String(row[checkedInCol] || '').trim().toUpperCase();
+      var checkedIn = String(row[checkedInCol] || '').trim().toUpperCase();
       if (checkedIn !== 'Y') continue;
       
-      const uid = String(row[uidCol] || '').trim();
+      var uid = String(row[uidCol] || '').trim();
       if (!uid) continue;
       
       // Build guest with all demographics
-      const guest = { uid: uid, demographics: {} };
+      var guest = { uid: uid, demographics: {} };
       
       for (var j = 0; j < ANALYSIS_CATEGORIES.length; j++) {
         var category = ANALYSIS_CATEGORIES[j];
@@ -1751,14 +1751,14 @@ function getDetailedWallConnections() {
     }
     
     // Analyze each category
-    const analyses = [];
+    var analyses = [];
     
     ANALYSIS_CATEGORIES.forEach(category => {
       // Group guests by value
-      const valueGroups = {};
+      var valueGroups = {};
       
       guests.forEach(guest => {
-        const value = guest.demographics[category.name];
+        var value = guest.demographics[category.name];
         if (value) {
           if (!valueGroups[value]) {
             valueGroups[value] = [];
@@ -1769,14 +1769,14 @@ function getDetailedWallConnections() {
       
       // Create connections for each value
       Object.keys(valueGroups).forEach(value => {
-        const uids = valueGroups[value];
+        var uids = valueGroups[value];
         
         if (uids.length < 2) return;
         
         // Create all possible pairs
-        const connections = [];
-        for (let i = 0; i < uids.length; i++) {
-          for (let j = i + 1; j < uids.length; j++) {
+        var connections = [];
+        for (var i = 0; i < uids.length; i++) {
+          for (var j = i + 1; j < uids.length; j++) {
             connections.push({
               uid1: uids[i],
               uid2: uids[j]
@@ -1845,49 +1845,49 @@ function getIntroText() {
  */
 function getAllZipData() {
   try {
-    const ss = SpreadsheetApp.getActive();
-    const sheet = ss.getSheetByName(WALL_CLEAN_SHEET);
+    var ss = SpreadsheetApp.getActive();
+    var sheet = ss.getSheetByName(WALL_CLEAN_SHEET);
     
     if (!sheet) {
       return { error: 'Clean sheet not found' };
     }
     
-    const data = sheet.getDataRange().getValues();
+    var data = sheet.getDataRange().getValues();
     if (data.length < 2) {
       return { error: 'No data found' };
     }
     
-    const headers = data[0];
-    const colMap = {};
+    var headers = data[0];
+    var colMap = {};
     headers.forEach((h, i) => colMap[String(h).trim()] = i);
     
-    const zipCol = colMap['Current 5 Digit Zip Code'];
-    const checkedInCol = colMap['Checked-In at Event'];
+    var zipCol = colMap['Current 5 Digit Zip Code'];
+    var checkedInCol = colMap['Checked-In at Event'];
     
     if (zipCol === undefined) {
       return { error: 'Zip code column not found' };
     }
     
     // Count guests per zip (checked-in only)
-    const zipCounts = {};
+    var zipCounts = {};
     
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
       
-      const checkedIn = String(row[checkedInCol] || '').trim().toUpperCase();
+      var checkedIn = String(row[checkedInCol] || '').trim().toUpperCase();
       if (checkedIn !== 'Y') continue;
       
-      const zip = String(row[zipCol] || '').trim();
+      var zip = String(row[zipCol] || '').trim();
       if (zip && zip.length === 5 && /^\d{5}$/.test(zip)) {
         zipCounts[zip] = (zipCounts[zip] || 0) + 1;
       }
     }
     
     // Geocode target
-    const targetGeo = geocodeAddress(WALL_TARGET_ADDRESS);
+    var targetGeo = geocodeAddress(WALL_TARGET_ADDRESS);
     
     // Geocode all guest zips
-    const zipLocations = [];
+    var zipLocations = [];
     var zips = Object.keys(zipCounts);
     for (var i = 0; i < zips.length; i++) {
       var zip = zips[i];
@@ -1932,9 +1932,9 @@ function getAllZipData() {
  */
 function geocodeAddress(address) {
   try {
-    const response = Maps.newGeocoder().geocode(address);
+    var response = Maps.newGeocoder().geocode(address);
     if (response.results && response.results.length > 0) {
-      const location = response.results[0].geometry.location;
+      var location = response.results[0].geometry.location;
       return {
         lat: location.lat,
         lng: location.lng
@@ -1953,9 +1953,9 @@ function geocodeAddress(address) {
  */
 function geocodeZip(zip) {
   try {
-    const response = Maps.newGeocoder().geocode(zip + ', USA');
+    var response = Maps.newGeocoder().geocode(zip + ', USA');
     if (response.results && response.results.length > 0) {
-      const location = response.results[0].geometry.location;
+      var location = response.results[0].geometry.location;
       return {
         lat: location.lat,
         lng: location.lng
@@ -1970,7 +1970,7 @@ function geocodeZip(zip) {
 
 // Test functions
 function testWallData() {
-  const guests = getWallData();
+  var guests = getWallData();
   Logger.log('Total guests: ' + guests.length);
   if (guests.length > 0) {
     Logger.log('Sample guest: ' + JSON.stringify(guests[0]));
@@ -1978,7 +1978,7 @@ function testWallData() {
 }
 
 function testWallConnections() {
-  const result = getDetailedWallConnections();
+  var result = getDetailedWallConnections();
   if (result.error) {
     Logger.log('Error: ' + result.error);
   } else {
@@ -2028,16 +2028,16 @@ function getDDDViolations() {
   };
   
   // Skip header row
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i];
-    const uid = row[uidCol];
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var uid = row[uidCol];
     
     if (!uid) continue;
     
     // Check each violation column
     Object.keys(violationColumns).forEach(violationType => {
-      const colIndex = violationColumns[violationType];
-      const hasViolation = row[colIndex] === 1 || row[colIndex] === '1';
+      var colIndex = violationColumns[violationType];
+      var hasViolation = row[colIndex] === 1 || row[colIndex] === '1';
       
       if (hasViolation) {
         violations.push({
@@ -2054,7 +2054,7 @@ function getDDDViolations() {
 }
 
 function getViolationDescription(type) {
-  const descriptions = {
+  var descriptions = {
     'Birthday Format': 'Invalid birthday format detected',
     'More Than 3 Interests': 'Listed more than 3 interests (max 3 allowed)',
     'Unknown Guest': 'Does not know the host(s)',
@@ -2080,23 +2080,23 @@ function getViolationDescription(type) {
 }
 
 function getWallData() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
   
   if (!cleanSheet) {
     Logger.log('Form Responses (Clean) sheet not found');
     return [];
   }
   
-  const data = cleanSheet.getDataRange().getValues();
-  const guests = [];
+  var data = cleanSheet.getDataRange().getValues();
+  var guests = [];
   
   // Based on Master_Desc: UID is column 23, Check-in Time is column 25
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i];
-    const uid = row[22]; // Column 23 (0-indexed = 22)
-    const checkedIn = row[23]; // Column 24
-    const checkInTime = row[24]; // Column 25
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var uid = row[22]; // Column 23 (0-indexed = 22)
+    var checkedIn = row[23]; // Column 24
+    var checkInTime = row[24]; // Column 25
     
     if (uid && checkedIn === 'Y') {
       guests.push({
@@ -2112,7 +2112,7 @@ function getWallData() {
 
 function formatTime(timestamp) {
   if (!timestamp) return 'N/A';
-  const date = new Date(timestamp);
+  var date = new Date(timestamp);
   return Utilities.formatDate(date, Session.getScriptTimeZone(), 'HH:mm');
 }
 
@@ -2142,30 +2142,30 @@ function formatTime(timestamp) {
  * Output: Demographics_Summary sheet
  */
 function buildDemographicsSummary() {
-  const ss = SpreadsheetApp.getActive();
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var ss = SpreadsheetApp.getActive();
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
   
   if (!cleanSheet) {
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
   }
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
   if (data.length < 2) {
     writeSheet_('Demographics_Summary', [['No data available']]);
     return;
   }
 
-  const header = data[0];
-  const colIdx = getColumnMap_(header);
+  var header = data[0];
+  var colIdx = getColumnMap_(header);
 
   // Calculate overview metrics
-  const totalCount = data.length - 1;
-  const checkedInCount = data.slice(1).filter(row => 
+  var totalCount = data.length - 1;
+  var checkedInCount = data.slice(1).filter(row => 
     String(row[colIdx['Checked-In at Event']] || '').trim().toUpperCase() === 'Y'
   ).length;
 
   // Build report sections
-  const sections = [];
+  var sections = [];
 
   // Title and overview
   sections.push(['PARTY SURVEY DEMOGRAPHICS SUMMARY']);
@@ -2177,7 +2177,7 @@ function buildDemographicsSummary() {
   sections.push(['']);
 
   // Add distribution sections
-  const demographicFields = [
+  var demographicFields = [
     ['Age Range', 'AGE RANGE DISTRIBUTION'],
     ['Self-Identified Gender', 'GENDER DISTRIBUTION'],
     ['Self Identified Ethnicity', 'ETHNICITY DISTRIBUTION'],
@@ -2191,7 +2191,7 @@ function buildDemographicsSummary() {
     var field = demographicFields[i];
     var colName = field[0];
     var title = field[1];
-    sections.push(...buildDistribution_(data, colIdx, colName, title, 'Checked-In at Event'));
+    Array.prototype.push.apply(sections, buildDistribution_(data, colIdx, colName, title, 'Checked-In at Event'));
     sections.push(['']);
   });
 
@@ -2225,7 +2225,7 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
     }
   }
 
-  const sortedValues = Object.keys(totalCounts).sort((a, b) => totalCounts[b] - totalCounts[a]);
+  var sortedValues = Object.keys(totalCounts).sort((a, b) => totalCounts[b] - totalCounts[a]);
   var totalSum = 0;
   for (var key in totalCounts) {
     if (totalCounts.hasOwnProperty(key)) {
@@ -2239,18 +2239,18 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
     }
   }
 
-  const rows = [
+  var rows = [
     [title],
     ['Category', 'Total', '% of Total', 'Checked-In', '% of Checked-In']
   ];
 
   sortedValues.forEach(value => {
-    const totalCount = totalCounts[value];
-    const checkedInCount = checkedInCounts[value] || 0;
-    const totalPct = ((totalCount / totalSum) * 100).toFixed(1);
-    const checkedInPct = checkedInSum > 0 ? ((checkedInCount / checkedInSum) * 100).toFixed(1) : '0.0';
+    var totalCount = totalCounts[value];
+    var checkedInCount = checkedInCounts[value] || 0;
+    var totalPct = ((totalCount / totalSum) * 100).toFixed(1);
+    var checkedInPct = checkedInSum > 0 ? ((checkedInCount / checkedInSum) * 100).toFixed(1) : '0.0';
 
-    rows.push([value, totalCount, `${totalPct}%`, checkedInCount, `${checkedInPct}%`]);
+    rows.push([value, totalCount, totalPct + '%', checkedInCount, checkedInPct + '%']);
   });
 
   rows.push(['TOTAL', totalSum, '100.0%', checkedInSum, '100.0%']);
@@ -2259,13 +2259,13 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
 }
 
 function formatDemographicsSheet_() {
-  const sheet = SpreadsheetApp.getActive().getSheetByName('Demographics_Summary');
+  var sheet = SpreadsheetApp.getActive().getSheetByName('Demographics_Summary');
   if (!sheet) return;
 
-  const data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getValues();
   
-  for (let row = 1; row <= data.length; row++) {
-    const cellValue = String(data[row - 1][0] || '').trim();
+  for (var row = 1; row <= data.length; row++) {
+    var cellValue = String(data[row - 1][0] || '').trim();
     
     if (cellValue === 'PARTY SURVEY DEMOGRAPHICS SUMMARY') {
       sheet.getRange(row, 1, 1, 5).setFontWeight('bold').setFontSize(12)
@@ -2280,7 +2280,7 @@ function formatDemographicsSheet_() {
     }
   }
 
-  for (let col = 1; col <= 5; col++) {
+  for (var col = 1; col <= 5; col++) {
     sheet.autoResizeColumn(col);
   }
 }
@@ -2294,76 +2294,76 @@ function formatDemographicsSheet_() {
  * Output: Music_Interests_Report sheet
  */
 function buildMusicInterestsReport() {
-  const ss = SpreadsheetApp.getActive();
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var ss = SpreadsheetApp.getActive();
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
   
   if (!cleanSheet) {
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
   }
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
   if (data.length < 2) {
     writeSheet_('Music_Interests_Report', [['No data available']]);
     return;
   }
 
-  const header = data[0];
-  const colIdx = getColumnMap_(header);
+  var header = data[0];
+  var colIdx = getColumnMap_(header);
 
-  const sections = [];
+  var sections = [];
 
   // Title
   sections.push(['MUSIC & INTERESTS ANALYSIS']);
   sections.push(['']);
 
   // Music Preferences
-  sections.push(...buildMusicPreferences_(data, colIdx));
+  Array.prototype.push.apply(sections, buildMusicPreferences_(data, colIdx));
   sections.push(['']);
 
   // Top Artists
-  sections.push(...buildTopArtists_(data, colIdx, 15));
+  Array.prototype.push.apply(sections, buildTopArtists_(data, colIdx, 15));
   sections.push(['']);
 
   // Top Interests
-  sections.push(...buildTopInterests_(data, colIdx));
+  Array.prototype.push.apply(sections, buildTopInterests_(data, colIdx));
   sections.push(['']);
 
   // Music by Age
-  sections.push(...buildMusicByDemographic_(data, colIdx, 'Age Range', 'AGE GROUP'));
+  Array.prototype.push.apply(sections, buildMusicByDemographic_(data, colIdx, 'Age Range', 'AGE GROUP'));
   sections.push(['']);
 
   // Music by Gender
-  sections.push(...buildMusicByDemographic_(data, colIdx, 'Self-Identified Gender', 'GENDER'));
+  Array.prototype.push.apply(sections, buildMusicByDemographic_(data, colIdx, 'Self-Identified Gender', 'GENDER'));
   sections.push(['']);
 
   // Song Requests
-  sections.push(...buildSongRequestsSummary_(data, colIdx));
+  Array.prototype.push.apply(sections, buildSongRequestsSummary_(data, colIdx));
 
   writeSheet_('Music_Interests_Report', sections);
   formatGenericReport_('Music_Interests_Report');
 }
 
 function buildMusicPreferences_(data, colIdx) {
-  const col = colIdx['Music Preference'];
+  var col = colIdx['Music Preference'];
   if (col === undefined) return [['MUSIC PREFERENCE DISTRIBUTION'], ['Column not found']];
 
-  const counts = {};
-  let total = 0;
+  var counts = {};
+  var total = 0;
 
-  for (let i = 1; i < data.length; i++) {
-    const value = String(data[i][col] || '').trim();
+  for (var i = 1; i < data.length; i++) {
+    var value = String(data[i][col] || '').trim();
     if (!value) continue;
     counts[value] = (counts[value] || 0) + 1;
     total++;
   }
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  const rows = [['MUSIC PREFERENCE DISTRIBUTION'], ['Genre', 'Count', 'Percentage']];
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var rows = [['MUSIC PREFERENCE DISTRIBUTION'], ['Genre', 'Count', 'Percentage']];
 
   for (var i = 0; i < sorted.length; i++) {
     var genre = sorted[i][0];
     var count = sorted[i][1];
-    rows.push([genre, count, `${((count / total) * 100).toFixed(1)}%`]);
+    rows.push([genre, count, ((count / total) * 100).toFixed(1) + '%']);
   });
 
   rows.push(['TOTAL', total, '100.0%']);
@@ -2371,18 +2371,18 @@ function buildMusicPreferences_(data, colIdx) {
 }
 
 function buildTopArtists_(data, colIdx, limit) {
-  const col = colIdx['Current Favorite Artist'];
-  if (col === undefined) return [[`TOP ${limit} FAVORITE ARTISTS`], ['Column not found']];
+  var col = colIdx['Current Favorite Artist'];
+  if (col === undefined) return [['TOP ' + limit + ' FAVORITE ARTISTS'], ['Column not found']];
 
-  const counts = {};
-  for (let i = 1; i < data.length; i++) {
-    const value = String(data[i][col] || '').trim();
+  var counts = {};
+  for (var i = 1; i < data.length; i++) {
+    var value = String(data[i][col] || '').trim();
     if (!value) continue;
     counts[value] = (counts[value] || 0) + 1;
   }
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
-  const rows = [[`TOP ${limit} FAVORITE ARTISTS`], ['Rank', 'Artist', 'Mentions']];
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
+  var rows = [['TOP ' + limit + ' FAVORITE ARTISTS'], ['Rank', 'Artist', 'Mentions']];
 
   for (var idx = 0; idx < sorted.length; idx++) {
     var artist = sorted[idx][0];
@@ -2394,7 +2394,7 @@ function buildTopArtists_(data, colIdx, limit) {
 }
 
 function buildTopInterests_(data, colIdx) {
-  const col = colIdx['Your General Interests (Choose 3)'];
+  var col = colIdx['Your General Interests (Choose 3)'];
   if (col === undefined) return [['TOP INTERESTS'], ['Column not found']];
 
   var counts = {};
@@ -2419,48 +2419,50 @@ function buildTopInterests_(data, colIdx) {
     }
   }
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  const rows = [['TOP INTERESTS'], ['Interest', 'Count', '% of Guests']];
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var rows = [['TOP INTERESTS'], ['Interest', 'Count', '% of Guests']];
 
   sorted.forEach(([interest, count]) => {
-    rows.push([interest, count, `${((count / totalResponses) * 100).toFixed(1)}%`]);
+    rows.push([interest, count, ((count / totalResponses) * 100).toFixed(1) + '%']);
   });
 
   return rows;
 }
 
 function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
-  const musicCol = colIdx['Music Preference'];
-  const demoColIdx = colIdx[demoCol];
+  var musicCol = colIdx['Music Preference'];
+  var demoColIdx = colIdx[demoCol];
   
   if (musicCol === undefined || demoColIdx === undefined) {
-    return [[`MUSIC PREFERENCE BY ${demoLabel}`], ['Required columns not found']];
+    return [['MUSIC PREFERENCE BY ' + demoLabel], ['Required columns not found']];
   }
 
-  const crosstab = {};
-  for (let i = 1; i < data.length; i++) {
-    const demo = String(data[i][demoColIdx] || '').trim();
-    const music = String(data[i][musicCol] || '').trim();
+  var crosstab = {};
+  for (var i = 1; i < data.length; i++) {
+    var demo = String(data[i][demoColIdx] || '').trim();
+    var music = String(data[i][musicCol] || '').trim();
     if (!demo || !music) continue;
 
     if (!crosstab[demo]) crosstab[demo] = {};
     crosstab[demo][music] = (crosstab[demo][music] || 0) + 1;
   }
 
-  const allGenres = new Set();
+  var allGenres = new Set();
   Object.values(crosstab).forEach(musicCounts => {
     Object.keys(musicCounts).forEach(genre => allGenres.add(genre));
   });
-  const genres = Array.from(allGenres).sort();
-  const demos = Object.keys(crosstab).sort();
+  var genres = [];
+  allGenres.forEach(function(val) { genres.push(val); });
+  genres.sort();
+  var demos = Object.keys(crosstab).sort();
 
-  const rows = [[`MUSIC PREFERENCE BY ${demoLabel}`], [demoCol, ...genres, 'Total']];
+  var rows = [['MUSIC PREFERENCE BY ' + demoLabel], [demoCol].concat(genres).concat(['Total'])];
 
   demos.forEach(demo => {
-    const row = [demo];
-    let rowTotal = 0;
+    var row = [demo];
+    var rowTotal = 0;
     genres.forEach(genre => {
-      const count = crosstab[demo][genre] || 0;
+      var count = crosstab[demo][genre] || 0;
       row.push(count);
       rowTotal += count;
     });
@@ -2472,25 +2474,25 @@ function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
 }
 
 function buildSongRequestsSummary_(data, colIdx) {
-  const col = colIdx['Name one song you want to hear at the party.'];
+  var col = colIdx['Name one song you want to hear at the party.'];
   if (col === undefined) return [['SONG REQUESTS SUMMARY'], ['Column not found']];
 
-  let totalResponses = 0, withSong = 0, withoutSong = 0;
+  var totalResponses = 0, withSong = 0, withoutSong = 0;
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
     totalResponses++;
-    const value = String(data[i][col] || '').trim();
+    var value = String(data[i][col] || '').trim();
     if (value) withSong++; else withoutSong++;
   }
 
-  const withPct = ((withSong / totalResponses) * 100).toFixed(1);
-  const withoutPct = ((withoutSong / totalResponses) * 100).toFixed(1);
+  var withPct = ((withSong / totalResponses) * 100).toFixed(1);
+  var withoutPct = ((withoutSong / totalResponses) * 100).toFixed(1);
 
   return [
     ['SONG REQUESTS SUMMARY'],
     ['Category', 'Count', 'Percentage'],
-    ['Provided Song Request', withSong, `${withPct}%`],
-    ['No Song Request', withoutSong, `${withoutPct}%`],
+    ['Provided Song Request', withSong, withPct + '%'],
+    ['No Song Request', withoutSong, withoutPct + '%'],
     ['Total Responses', totalResponses, '100.0%']
   ];
 }
@@ -2504,58 +2506,58 @@ function buildSongRequestsSummary_(data, colIdx) {
  * Output: Host_Relationships sheet
  */
 function buildHostRelationshipReport() {
-  const ss = SpreadsheetApp.getActive();
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var ss = SpreadsheetApp.getActive();
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
   
   if (!cleanSheet) {
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
   }
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
   if (data.length < 2) {
     writeSheet_('Host_Relationships', [['No data available']]);
     return;
   }
 
-  const header = data[0];
-  const colIdx = getColumnMap_(header);
+  var header = data[0];
+  var colIdx = getColumnMap_(header);
 
-  const sections = [];
+  var sections = [];
 
   sections.push(['HOST RELATIONSHIP ANALYSIS']);
   sections.push(['']);
 
   // Overview
-  sections.push(...buildHostOverview_(data, colIdx));
+  Array.prototype.push.apply(sections, buildHostOverview_(data, colIdx));
   sections.push(['']);
 
   // Duration Distribution
-  sections.push(...buildHostDuration_(data, colIdx));
+  Array.prototype.push.apply(sections, buildHostDuration_(data, colIdx));
   sections.push(['']);
 
   // Which Host Known
-  sections.push(...buildWhichHost_(data, colIdx));
+  Array.prototype.push.apply(sections, buildWhichHost_(data, colIdx));
   sections.push(['']);
 
   // Closeness Scores
-  sections.push(...buildClosenessScores_(data, colIdx));
+  Array.prototype.push.apply(sections, buildClosenessScores_(data, colIdx));
   sections.push(['']);
 
   // Closeness by Host
-  sections.push(...buildClosenessbyHost_(data, colIdx));
+  Array.prototype.push.apply(sections, buildClosenessbyHost_(data, colIdx));
 
   writeSheet_('Host_Relationships', sections);
   formatGenericReport_('Host_Relationships');
 }
 
 function buildHostOverview_(data, colIdx) {
-  const col = colIdx['Do you know the Host(s)?'];
+  var col = colIdx['Do you know the Host(s)?'];
   if (col === undefined) return [['OVERVIEW'], ['Column not found']];
 
-  let total = data.length - 1, knowHosts = 0, unknownGuests = 0;
+  var total = data.length - 1, knowHosts = 0, unknownGuests = 0;
 
-  for (let i = 1; i < data.length; i++) {
-    const value = String(data[i][col] || '').trim().toLowerCase();
+  for (var i = 1; i < data.length; i++) {
+    var value = String(data[i][col] || '').trim().toLowerCase();
     if (value.includes('yes') || value.includes('—')) knowHosts++;
     else if (value.includes('no')) unknownGuests++;
   }
@@ -2564,40 +2566,40 @@ function buildHostOverview_(data, colIdx) {
     ['OVERVIEW'],
     ['Metric', 'Count', 'Percentage'],
     ['Total Guests', total, '100.0%'],
-    ['Know Host(s)', knowHosts, `${((knowHosts / total) * 100).toFixed(1)}%`],
-    ['Unknown Guests', unknownGuests, `${((unknownGuests / total) * 100).toFixed(1)}%`]
+    ['Know Host(s)', knowHosts, ((knowHosts / total) * 100).toFixed(1) + '%'],
+    ['Unknown Guests', unknownGuests, ((unknownGuests / total) * 100).toFixed(1) + '%']
   ];
 }
 
 function buildHostDuration_(data, colIdx) {
-  const col = colIdx['Do you know the Host(s)?'];
+  var col = colIdx['Do you know the Host(s)?'];
   if (col === undefined) return [['FRIENDSHIP DURATION'], ['Column not found']];
 
-  const counts = {};
-  let total = 0;
+  var counts = {};
+  var total = 0;
 
-  for (let i = 1; i < data.length; i++) {
-    const value = String(data[i][col] || '').trim();
+  for (var i = 1; i < data.length; i++) {
+    var value = String(data[i][col] || '').trim();
     if (!value) continue;
     counts[value] = (counts[value] || 0) + 1;
     total++;
   }
 
-  const order = ['No', 'Yes — 3–12 months', 'Yes — 1–3 years', 'Yes — 3–5 years', 'Yes — 5–10 years', 'Yes — more than 10 years'];
-  const sorted = Object.keys(counts).sort((a, b) => {
-    const idxA = order.indexOf(a);
-    const idxB = order.indexOf(b);
+  var order = ['No', 'Yes — 3–12 months', 'Yes — 1–3 years', 'Yes — 3–5 years', 'Yes — 5–10 years', 'Yes — more than 10 years'];
+  var sorted = Object.keys(counts).sort((a, b) => {
+    var idxA = order.indexOf(a);
+    var idxB = order.indexOf(b);
     if (idxA === -1 && idxB === -1) return a.localeCompare(b);
     if (idxA === -1) return 1;
     if (idxB === -1) return -1;
     return idxA - idxB;
   });
 
-  const rows = [['FRIENDSHIP DURATION DISTRIBUTION'], ['Duration', 'Count', 'Percentage']];
+  var rows = [['FRIENDSHIP DURATION DISTRIBUTION'], ['Duration', 'Count', 'Percentage']];
 
   sorted.forEach(duration => {
-    const count = counts[duration];
-    rows.push([duration, count, `${((count / total) * 100).toFixed(1)}%`]);
+    var count = counts[duration];
+    rows.push([duration, count, ((count / total) * 100).toFixed(1) + '%']);
   });
 
   rows.push(['TOTAL', total, '100.0%']);
@@ -2605,24 +2607,24 @@ function buildHostDuration_(data, colIdx) {
 }
 
 function buildWhichHost_(data, colIdx) {
-  const col = colIdx['Which host have you known the longest?'];
+  var col = colIdx['Which host have you known the longest?'];
   if (col === undefined) return [['WHICH HOST KNOWN LONGEST'], ['Column not found']];
 
-  const counts = {};
-  let total = 0;
+  var counts = {};
+  var total = 0;
 
-  for (let i = 1; i < data.length; i++) {
-    const value = String(data[i][col] || '').trim();
+  for (var i = 1; i < data.length; i++) {
+    var value = String(data[i][col] || '').trim();
     if (!value) continue;
     counts[value] = (counts[value] || 0) + 1;
     total++;
   }
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  const rows = [['WHICH HOST KNOWN LONGEST'], ['Host', 'Count', 'Percentage']];
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var rows = [['WHICH HOST KNOWN LONGEST'], ['Host', 'Count', 'Percentage']];
 
   sorted.forEach(([host, count]) => {
-    rows.push([host, count, `${((count / total) * 100).toFixed(1)}%`]);
+    rows.push([host, count, ((count / total) * 100).toFixed(1) + '%']);
   });
 
   rows.push(['TOTAL', total, '100.0%']);
@@ -2630,16 +2632,16 @@ function buildWhichHost_(data, colIdx) {
 }
 
 function buildClosenessScores_(data, colIdx) {
-  const col = colIdx['If yes, how well do you know them?'];
+  var col = colIdx['If yes, how well do you know them?'];
   if (col === undefined) return [['CLOSENESS SCORE DISTRIBUTION'], ['Column not found']];
 
-  const counts = {};
-  let total = 0, sum = 0;
+  var counts = {};
+  var total = 0, sum = 0;
 
-  for (let i = 1; i < data.length; i++) {
-    const value = data[i][col];
+  for (var i = 1; i < data.length; i++) {
+    var value = data[i][col];
     if (value === null || value === undefined || value === '') continue;
-    const score = Number(value);
+    var score = Number(value);
     if (!isFinite(score)) continue;
     
     counts[score] = (counts[score] || 0) + 1;
@@ -2647,17 +2649,17 @@ function buildClosenessScores_(data, colIdx) {
     total++;
   }
 
-  const avg = total > 0 ? (sum / total).toFixed(2) : 'N/A';
-  const sorted = Object.keys(counts).sort((a, b) => Number(b) - Number(a));
+  var avg = total > 0 ? (sum / total).toFixed(2) : 'N/A';
+  var sorted = Object.keys(counts).sort((a, b) => Number(b) - Number(a));
 
-  const rows = [
+  var rows = [
     ['CLOSENESS SCORE DISTRIBUTION (1=Acquaintance, 5=Close Friend)'],
     ['Score', 'Count', 'Percentage']
   ];
 
   sorted.forEach(score => {
-    const count = counts[score];
-    rows.push([score, count, `${((count / total) * 100).toFixed(1)}%`]);
+    var count = counts[score];
+    rows.push([score, count, ((count / total) * 100).toFixed(1) + '%']);
   });
 
   rows.push(['TOTAL', total, '100.0%']);
@@ -2666,21 +2668,21 @@ function buildClosenessScores_(data, colIdx) {
 }
 
 function buildClosenessbyHost_(data, colIdx) {
-  const hostCol = colIdx['Which host have you known the longest?'];
-  const scoreCol = colIdx['If yes, how well do you know them?'];
+  var hostCol = colIdx['Which host have you known the longest?'];
+  var scoreCol = colIdx['If yes, how well do you know them?'];
   
   if (hostCol === undefined || scoreCol === undefined) {
     return [['AVERAGE CLOSENESS BY HOST'], ['Required columns not found']];
   }
 
-  const hostScores = {};
+  var hostScores = {};
 
-  for (let i = 1; i < data.length; i++) {
-    const host = String(data[i][hostCol] || '').trim();
-    const score = data[i][scoreCol];
+  for (var i = 1; i < data.length; i++) {
+    var host = String(data[i][hostCol] || '').trim();
+    var score = data[i][scoreCol];
     
     if (!host || score === null || score === undefined || score === '') continue;
-    const scoreNum = Number(score);
+    var scoreNum = Number(score);
     if (!isFinite(scoreNum)) continue;
 
     if (!hostScores[host]) hostScores[host] = { sum: 0, count: 0 };
@@ -2688,10 +2690,10 @@ function buildClosenessbyHost_(data, colIdx) {
     hostScores[host].count++;
   }
 
-  const rows = [['AVERAGE CLOSENESS BY HOST'], ['Host', 'Count', 'Average Score']];
+  var rows = [['AVERAGE CLOSENESS BY HOST'], ['Host', 'Count', 'Average Score']];
 
   Object.entries(hostScores).forEach(([host, data]) => {
-    const avg = (data.sum / data.count).toFixed(2);
+    var avg = (data.sum / data.count).toFixed(2);
     rows.push([host, data.count, avg]);
   });
 
@@ -2707,29 +2709,29 @@ function buildClosenessbyHost_(data, colIdx) {
  * Output: Attendee_Analysis sheet
  */
 function buildAttendeeAnalysis() {
-  const ss = SpreadsheetApp.getActive();
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var ss = SpreadsheetApp.getActive();
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
   
   if (!cleanSheet) {
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
   }
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
   if (data.length < 2) {
     writeSheet_('Attendee_Analysis', [['No data available']]);
     return;
   }
 
-  const header = data[0];
-  const colIdx = getColumnMap_(header);
+  var header = data[0];
+  var colIdx = getColumnMap_(header);
 
-  const sections = [];
+  var sections = [];
 
   sections.push(['ATTENDEE VS NO-SHOW ANALYSIS']);
   sections.push(['']);
 
   // Compare demographics
-  const compareFields = [
+  var compareFields = [
     ['Age Range', 'AGE RANGE'],
     ['Self-Identified Gender', 'GENDER'],
     ['Education Level', 'EDUCATION'],
@@ -2737,7 +2739,7 @@ function buildAttendeeAnalysis() {
   ];
 
   compareFields.forEach(([colName, label]) => {
-    sections.push(...buildAttendeeComparison_(data, colIdx, colName, label));
+    Array.prototype.push.apply(sections, buildAttendeeComparison_(data, colIdx, colName, label));
     sections.push(['']);
   });
 
@@ -2746,19 +2748,19 @@ function buildAttendeeAnalysis() {
 }
 
 function buildAttendeeComparison_(data, colIdx, colName, label) {
-  const dataCol = colIdx[colName];
-  const checkedInCol = colIdx['Checked-In at Event'];
+  var dataCol = colIdx[colName];
+  var checkedInCol = colIdx['Checked-In at Event'];
   
   if (dataCol === undefined || checkedInCol === undefined) {
-    return [[`${label} COMPARISON`], ['Required columns not found']];
+    return [[label + ' COMPARISON'], ['Required columns not found']];
   }
 
-  const attendeeCounts = {};
-  const noShowCounts = {};
+  var attendeeCounts = {};
+  var noShowCounts = {};
 
-  for (let i = 1; i < data.length; i++) {
-    const value = String(data[i][dataCol] || '').trim();
-    const isAttendee = String(data[i][checkedInCol] || '').trim().toUpperCase() === 'Y';
+  for (var i = 1; i < data.length; i++) {
+    var value = String(data[i][dataCol] || '').trim();
+    var isAttendee = String(data[i][checkedInCol] || '').trim().toUpperCase() === 'Y';
 
     if (!value) continue;
 
@@ -2769,24 +2771,26 @@ function buildAttendeeComparison_(data, colIdx, colName, label) {
     }
   }
 
-  const allValues = new Set([...Object.keys(attendeeCounts), ...Object.keys(noShowCounts)]);
-  const sorted = Array.from(allValues).sort();
+  var allValues = new Set(Object.keys(attendeeCounts).concat(Object.keys(noShowCounts)));
+  var sorted = [];
+  allValues.forEach(function(val) { sorted.push(val); });
+  sorted.sort();
 
-  const attendeeTotal = Object.values(attendeeCounts).reduce((a, b) => a + b, 0);
-  const noShowTotal = Object.values(noShowCounts).reduce((a, b) => a + b, 0);
+  var attendeeTotal = Object.values(attendeeCounts).reduce((a, b) => a + b, 0);
+  var noShowTotal = Object.values(noShowCounts).reduce((a, b) => a + b, 0);
 
-  const rows = [
-    [`${label} COMPARISON: ATTENDEES VS NO-SHOWS`],
+  var rows = [
+    [label + ' COMPARISON: ATTENDEES VS NO-SHOWS'],
     ['Category', 'Attendees', '% Attendees', 'No-Shows', '% No-Shows']
   ];
 
   sorted.forEach(value => {
-    const attendeeCount = attendeeCounts[value] || 0;
-    const noShowCount = noShowCounts[value] || 0;
-    const attendeePct = attendeeTotal > 0 ? ((attendeeCount / attendeeTotal) * 100).toFixed(1) : '0.0';
-    const noShowPct = noShowTotal > 0 ? ((noShowCount / noShowTotal) * 100).toFixed(1) : '0.0';
+    var attendeeCount = attendeeCounts[value] || 0;
+    var noShowCount = noShowCounts[value] || 0;
+    var attendeePct = attendeeTotal > 0 ? ((attendeeCount / attendeeTotal) * 100).toFixed(1) : '0.0';
+    var noShowPct = noShowTotal > 0 ? ((noShowCount / noShowTotal) * 100).toFixed(1) : '0.0';
 
-    rows.push([value, attendeeCount, `${attendeePct}%`, noShowCount, `${noShowPct}%`]);
+    rows.push([value, attendeeCount, attendeePct + '%', noShowCount, noShowPct + '%']);
   });
 
   rows.push(['TOTAL', attendeeTotal, '100.0%', noShowTotal, '100.0%']);
@@ -2802,37 +2806,37 @@ function buildAttendeeComparison_(data, colIdx, colName, label) {
  * Output: Guest_Profiles sheet
  */
 function buildGuestProfiles() {
-  const ss = SpreadsheetApp.getActive();
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var ss = SpreadsheetApp.getActive();
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
   // simSheet is not used in the function body, removed for clarity:
-  // const simSheet = ss.getSheetByName('Guest_Similarity'); 
+  // var simSheet = ss.getSheetByName('Guest_Similarity'); 
   
   if (!cleanSheet) {
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
   }
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
   if (data.length < 2) {
     writeSheet_('Guest_Profiles', [['No data available']]);
     return;
   }
 
-  const header = data[0];
-  const colIdx = getColumnMap_(header);
+  var header = data[0];
+  var colIdx = getColumnMap_(header);
 
   // Build profiles
-  const profiles = [
+  var profiles = [
     ['Screen Name', 'UID', 'Age', 'Gender', 'Orientation', 'Ethnicity', 'Education', 'Industry', 'Role', 
      'Top 3 Interests', 'Music Genre', 'Favorite Artist', 'Personality Trait', 'Host Known Longest', 
      'Closeness', 'Checked-In']
   ];
 
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i];
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
     
     // Parse interests
-    const interestsStr = String(row[colIdx['Your General Interests (Choose 3)']] || '').trim();
-    const interests = interestsStr.split(',').slice(0, 3).map(s => s.trim()).join(', ');
+    var interestsStr = String(row[colIdx['Your General Interests (Choose 3)']] || '').trim();
+    var interests = interestsStr.split(',').slice(0, 3).map(s => s.trim()).join(', ');
 
     profiles.push([
       row[colIdx['Screen Name']] || '',
@@ -2856,14 +2860,14 @@ function buildGuestProfiles() {
 
   writeSheet_('Guest_Profiles', profiles);
   
-  const sheet = ss.getSheetByName('Guest_Profiles');
+  var sheet = ss.getSheetByName('Guest_Profiles');
   if (sheet) {
     sheet.getRange(1, 1, 1, profiles[0].length)
       .setFontWeight('bold')
       .setBackground('#4a86e8')
       .setFontColor('#ffffff');
     sheet.setFrozenRows(1);
-    for (let col = 1; col <= profiles[0].length; col++) {
+    for (var col = 1; col <= profiles[0].length; col++) {
       sheet.autoResizeColumn(col);
     }
   }
@@ -2877,9 +2881,9 @@ function buildGuestProfiles() {
  * Create column name to index mapping
  */
 function getColumnMap_(header) {
-  const map = {};
+  var map = {};
   header.forEach((col, idx) => {
-    const colName = String(col || '').trim();
+    var colName = String(col || '').trim();
     if (colName) map[colName] = idx;
   });
   return map;
@@ -2895,11 +2899,11 @@ function resolveColumnIndex_(colMap, targetName) {
   if (Object.prototype.hasOwnProperty.call(colMap, targetName)) {
     return colMap[targetName];
   }
-  const normalize = s => String(s || '')
+  var normalize = s => String(s || '')
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
-  const normTarget = normalize(targetName);
-  for (const key in colMap) {
+  var normTarget = normalize(targetName);
+  for (var key in colMap) {
     if (!Object.prototype.hasOwnProperty.call(colMap, key)) continue;
     if (normalize(key) === normTarget) return colMap[key];
   }
@@ -2910,8 +2914,8 @@ function resolveColumnIndex_(colMap, targetName) {
  * Write data to a sheet
  */
 function writeSheet_(sheetName, data) {
-  const ss = SpreadsheetApp.getActive();
-  let sheet = ss.getSheetByName(sheetName);
+  var ss = SpreadsheetApp.getActive();
+  var sheet = ss.getSheetByName(sheetName);
   
   if (!sheet) {
     sheet = ss.insertSheet(sheetName);
@@ -2925,12 +2929,12 @@ function writeSheet_(sheetName, data) {
   }
 
   // Find max columns
-  const maxCols = Math.max(...data.map(row => Array.isArray(row) ? row.length : 1));
+  var maxCols = Math.max.apply(null, data.map(row => Array.isArray(row) ? row.length : 1));
 
   // Pad rows to same length
-  const paddedRows = data.map(row => {
+  var paddedRows = data.map(row => {
     if (!Array.isArray(row)) return [row];
-    const padded = [...row];
+    var padded = row.slice();
     while (padded.length < maxCols) padded.push('');
     return padded;
   });
@@ -2942,20 +2946,20 @@ function writeSheet_(sheetName, data) {
  * Apply generic formatting to report sheets
  */
 function formatGenericReport_(sheetName) {
-  const sheet = SpreadsheetApp.getActive().getSheetByName(sheetName);
+  var sheet = SpreadsheetApp.getActive().getSheetByName(sheetName);
   if (!sheet) return;
 
-  const data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getValues();
   // Ensure data has at least one row to safely access data[0].
   if (data.length === 0) return;
-  const maxCols = data[0].length;
+  var maxCols = data[0].length;
 
-  for (let col = 1; col <= maxCols; col++) {
+  for (var col = 1; col <= maxCols; col++) {
     sheet.autoResizeColumn(col);
   }
 
-  for (let row = 1; row <= data.length; row++) {
-    const cellValue = String(data[row - 1][0] || '').trim();
+  for (var row = 1; row <= data.length; row++) {
+    var cellValue = String(data[row - 1][0] || '').trim();
     
     // Main titles (ends with ANALYSIS)
     if (cellValue.includes('ANALYSIS')) {
@@ -3061,8 +3065,8 @@ function testConstants() {
     Logger.log('TROUBLESHOOTING STEPS:');
     Logger.log('1. ✓ Make sure Config.gs file exists in file list');
     Logger.log('2. ✓ Make sure Config.gs is saved (💾 icon)');
-    Logger.log('3. ✓ Remove ALL "const" lines from Code.gs');
-    Logger.log('4. ✓ Remove ALL "const" lines from Utilities.gs');
+    Logger.log('3. ✓ Remove ALL "var" lines from Code.gs');
+    Logger.log('4. ✓ Remove ALL "var" lines from Utilities.gs');
     Logger.log('5. ✓ Close and reopen Apps Script editor');
     Logger.log('6. ✓ Try running testConstants() again');
     Logger.log('════════════════════════════════════════════════════════════════
@@ -3087,17 +3091,17 @@ function verifyNoDuplicates() {
   
   Logger.log('MANUAL CHECK:');
   Logger.log('1. Open each .gs file in your project');
-  Logger.log('2. Search (Ctrl+F) for: "const SHEET_NAME"');
+  Logger.log('2. Search (Ctrl+F) for: "var SHEET_NAME"');
   Logger.log('3. Should ONLY appear in Config.gs');
   Logger.log('4. If found elsewhere, delete that line');
   Logger.log('');
   Logger.log('FILES TO CHECK:');
-  Logger.log('• Config.gs          → ✅ SHOULD have const declarations');
-  Logger.log('• Code.gs            → ❌ SHOULD NOT have const declarations');
-  Logger.log('• Utilities.gs       → ❌ SHOULD NOT have const declarations');
-  Logger.log('• Reports.gs         → ❌ SHOULD NOT have const declarations');
-  Logger.log('• DataClean.gs       → ❌ SHOULD NOT have const declarations');
-  Logger.log('• Any other .gs file → ❌ SHOULD NOT have const declarations');
+  Logger.log('• Config.gs          → ✅ SHOULD have var declarations');
+  Logger.log('• Code.gs            → ❌ SHOULD NOT have var declarations');
+  Logger.log('• Utilities.gs       → ❌ SHOULD NOT have var declarations');
+  Logger.log('• Reports.gs         → ❌ SHOULD NOT have var declarations');
+  Logger.log('• DataClean.gs       → ❌ SHOULD NOT have var declarations');
+  Logger.log('• Any other .gs file → ❌ SHOULD NOT have var declarations');
   Logger.log('');
   Logger.log('After cleanup, run testConstants() to verify!
 ');
@@ -3118,25 +3122,25 @@ function showConstantsToRemove() {
   Logger.log('Then DELETE any lines you find (except in Config.gs)
 ');
   
-  const constantsToRemove = [
-    'const SHEET_NAME',
-    'const WALL_CLEAN_SHEET',
-    'const REPORTS_CLEAN_SHEET',
-    'const DDD_SHEET_NAME',
-    'const PHOTOS_FOLDER_NAME',
-    'const WALL_TARGET_ADDRESS',
-    'const ZIP_COL',
-    'const GENDER_COL',
-    'const BIRTHDAY_COL',
-    'const SCREEN_NAME_COL',
-    'const UID_COL',
-    'const CHECKED_FLAG_COL',
-    'const CHECKED_TS_COL',
-    'const PHOTO_URL_COL',
-    'const DDD_UID_COL',
-    'const ANALYSIS_CATEGORIES',
-    'const CYCLE_INTERVAL',
-    'const COLOR_PALETTE'
+  var constantsToRemove = [
+    'var SHEET_NAME',
+    'var WALL_CLEAN_SHEET',
+    'var REPORTS_CLEAN_SHEET',
+    'var DDD_SHEET_NAME',
+    'var PHOTOS_FOLDER_NAME',
+    'var WALL_TARGET_ADDRESS',
+    'var ZIP_COL',
+    'var GENDER_COL',
+    'var BIRTHDAY_COL',
+    'var SCREEN_NAME_COL',
+    'var UID_COL',
+    'var CHECKED_FLAG_COL',
+    'var CHECKED_TS_COL',
+    'var PHOTO_URL_COL',
+    'var DDD_UID_COL',
+    'var ANALYSIS_CATEGORIES',
+    'var CYCLE_INTERVAL',
+    'var COLOR_PALETTE'
   ];
   
   Logger.log('DELETE THESE LINES from Code.gs and Utilities.gs:');
@@ -3150,7 +3154,7 @@ function showConstantsToRemove() {
   Logger.log('HOW TO SEARCH:');
   Logger.log('1. Open Code.gs');
   Logger.log('2. Press Ctrl+F (or Cmd+F on Mac)');
-  Logger.log('3. Type: const SHEET_NAME');
+  Logger.log('3. Type: var SHEET_NAME');
   Logger.log('4. If found, DELETE the entire line');
   Logger.log('5. Repeat for each constant above');
   Logger.log('6. Do the same for Utilities.gs and other files');
@@ -3180,10 +3184,10 @@ function convertDriveUrlToDirectLink(driveUrl) {
   
   try {
     // Extract file ID from Drive URL
-    const match = driveUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    var match = driveUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
     if (match) {
-      const fileId = match[1];
-      return `https://drive.google.com/uc?export=view&id=${fileId}`;
+      var fileId = match[1];
+      return 'https://drive.google.com/uc?export=view&id=' + fileId;
     }
     
     // If already a direct link, return as-is
@@ -3204,24 +3208,24 @@ function convertDriveUrlToDirectLink(driveUrl) {
  */
 function syncPhotosFromDrive() {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
     
     if (!cleanSheet) {
       return { success: false, message: 'Form Responses (Clean) sheet not found' };
     }
     
-    const data = cleanSheet.getDataRange().getValues();
-    const photoUrlCol = 25; // Column Z (0-indexed = 25)
+    var data = cleanSheet.getDataRange().getValues();
+    var photoUrlCol = 25; // Column Z (0-indexed = 25)
     
-    let updatedCount = 0;
+    var updatedCount = 0;
     
-    for (let i = 1; i < data.length; i++) {
-      const currentUrl = data[i][photoUrlCol];
+    for (var i = 1; i < data.length; i++) {
+      var currentUrl = data[i][photoUrlCol];
       
       if (currentUrl && typeof currentUrl === 'string' && currentUrl.includes('drive.google.com')) {
         if (currentUrl.includes('/view') || currentUrl.includes('?usp=')) {
-          const directUrl = convertDriveUrlToDirectLink(currentUrl);
+          var directUrl = convertDriveUrlToDirectLink(currentUrl);
           
           if (directUrl !== currentUrl) {
             cleanSheet.getRange(i + 1, photoUrlCol + 1).setValue(directUrl);
@@ -3231,12 +3235,12 @@ function syncPhotosFromDrive() {
       }
     }
     
-    Logger.log(`✅ Photo sync complete: ${updatedCount} URLs converted`);
+    Logger.log('✅ Photo sync complete: ' + updatedCount + ' URLs converted');
     
     return {
       success: true,
       updated: updatedCount,
-      message: `Successfully converted ${updatedCount} photo URLs`
+      message: 'Successfully converted ' + updatedCount + ' photo URLs'
     };
     
   } catch (error) {
@@ -3249,21 +3253,15 @@ function syncPhotosFromDrive() {
  * Manual function to sync all photos - RUN THIS!
  */
 function manualSyncAllPhotos() {
-  const result = syncPhotosFromDrive();
+  var result = syncPhotosFromDrive();
   
   SpreadsheetApp.getUi().alert(
     '📸 Photo Sync Results
 
 ' +
-    (result.success ? 
-      `✅ Success!
-
-Converted ${result.updated} URLs to direct image links.
-
-Refresh MM.html to see photos.` :
-      `❌ Failed
-
-${result.message}`)
+    (result.success ?
+      '✅ Success!\n\nConverted ' + result.updated + ' URLs to direct image links.\n\nRefresh MM.html to see photos.' :
+      '❌ Failed\n\n' + result.message)
   );
 }
 
@@ -3273,7 +3271,7 @@ ${result.message}`)
 function extractFileId(url) {
   if (!url || typeof url !== 'string') return '';
   // The 'uc?export=view' format: extract the ID after 'id='
-  const match = url.match(/id=([a-zA-Z0-9_-]+)/);
+  var match = url.match(/id=([a-zA-Z0-9_-]+)/);
   return match ? match[1] : '';
 }
 
@@ -3283,7 +3281,7 @@ function extractFileId(url) {
 function extractFileId(url) {
   if (!url || typeof url !== 'string') return '';
   // The 'uc?export=view' format: extract the ID after 'id='
-  const match = url.match(/id=([a-zA-Z0-9_-]+)/);
+  var match = url.match(/id=([a-zA-Z0-9_-]+)/);
   return match ? match[1] : '';
 }
 
@@ -3302,26 +3300,26 @@ function getIntroText() {
 
 function getZipCodesFromSheet() {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName('Form Responses 1');
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Form Responses 1');
     
     if (!sheet) {
       throw new Error('Sheet "Form Responses 1" not found');
     }
     
-    const lastRow = sheet.getLastRow();
+    var lastRow = sheet.getLastRow();
     
     if (lastRow < 2) {
       return {};
     }
     
-    const zipRange = sheet.getRange(2, 5, lastRow - 1, 1);
-    const zipValues = zipRange.getValues();
+    var zipRange = sheet.getRange(2, 5, lastRow - 1, 1);
+    var zipValues = zipRange.getValues();
     
     // Count occurrences of each zip code
-    const zipCounts = {};
+    var zipCounts = {};
     zipValues.forEach(row => {
-      const zip = String(row[0]).trim();
+      var zip = String(row[0]).trim();
       if (zip && zip !== '' && zip.length === 5) {
         zipCounts[zip] = (zipCounts[zip] || 0) + 1;
       }
@@ -3337,11 +3335,11 @@ function getZipCodesFromSheet() {
 
 function getAddressCoordinates(address) {
   try {
-    const geocoder = Maps.newGeocoder();
-    const location = geocoder.geocode(address);
+    var geocoder = Maps.newGeocoder();
+    var location = geocoder.geocode(address);
     
     if (location.status === 'OK' && location.results.length > 0) {
-      const result = location.results[0];
+      var result = location.results[0];
       return {
         lat: result.geometry.location.lat,
         lng: result.geometry.location.lng
@@ -3356,11 +3354,11 @@ function getAddressCoordinates(address) {
 
 function getZipCodeCoordinates(zipCode) {
   try {
-    const geocoder = Maps.newGeocoder();
-    const location = geocoder.geocode(zipCode + ', USA');
+    var geocoder = Maps.newGeocoder();
+    var location = geocoder.geocode(zipCode + ', USA');
     
     if (location.status === 'OK' && location.results.length > 0) {
-      const result = location.results[0];
+      var result = location.results[0];
       return {
         lat: result.geometry.location.lat,
         lng: result.geometry.location.lng,
@@ -3375,21 +3373,21 @@ function getZipCodeCoordinates(zipCode) {
 }
 
 function getAllZipData() {
-  const zipCounts = getZipCodesFromSheet();
+  var zipCounts = getZipCodesFromSheet();
   
   if (Object.keys(zipCounts).length === 0) {
     return { error: 'No zip codes found in Column E' };
   }
   
-  const targetCount = zipCounts['64110'] || 0;
+  var targetCount = zipCounts['64110'] || 0;
   
   // Geocode the specific address
-  const targetCoords = getAddressCoordinates('5317 Charlotte St, Kansas City, MO 64110');
+  var targetCoords = getAddressCoordinates('5317 Charlotte St, Kansas City, MO 64110');
   if (!targetCoords) {
     return { error: 'Could not geocode target address' };
   }
   
-  const target = {
+  var target = {
     lat: targetCoords.lat,
     lng: targetCoords.lng,
     zip: '5317 Charlotte',
@@ -3397,14 +3395,14 @@ function getAllZipData() {
     displayName: '5317 Charlotte'
   };
   
-  const allZips = [];
-  let totalRespondents = 0;
+  var allZips = [];
+  var totalRespondents = 0;
   
   Object.keys(zipCounts).forEach(zip => {
     totalRespondents += zipCounts[zip];
     
     if (zip !== '64110') {
-      const coord = getZipCodeCoordinates(zip);
+      var coord = getZipCodeCoordinates(zip);
       if (coord) {
         coord.count = zipCounts[zip];
         allZips.push(coord);
@@ -3432,41 +3430,41 @@ function getAllZipData() {
  */
 function getDisplayPhotos() {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
     
     if (!cleanSheet) {
       Logger.log('ERROR: Form Responses (Clean) sheet not found');
       return [];
     }
     
-    const data = cleanSheet.getDataRange().getValues();
+    var data = cleanSheet.getDataRange().getValues();
     if (data.length < 2) {
       return [];
     }
     
-    const headers = data[0];
-    const colMap = {};
+    var headers = data[0];
+    var colMap = {};
     headers.forEach((h, i) => colMap[String(h).trim()] = i);
     
-    const screenNameCol = colMap['Screen Name'];
-    const checkedInCol = colMap['Checked-In at Event'];
-    const photoCol = colMap['Photo URL'];
+    var screenNameCol = colMap['Screen Name'];
+    var checkedInCol = colMap['Checked-In at Event'];
+    var photoCol = colMap['Photo URL'];
     
-    const guests = [];
+    var guests = [];
     
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
       
       // Only include checked-in guests
-      const checkedIn = String(row[checkedInCol] || '').trim().toUpperCase();
+      var checkedIn = String(row[checkedInCol] || '').trim().toUpperCase();
       if (checkedIn !== 'Y') continue;
       
-      const screenName = String(row[screenNameCol] || '').trim();
+      var screenName = String(row[screenNameCol] || '').trim();
       if (!screenName) continue;
       
-      const rawPhotoUrl = String(row[photoCol] || '').trim();
-      const photoUrl = processPhotoUrl(rawPhotoUrl);
+      var rawPhotoUrl = String(row[photoCol] || '').trim();
+      var photoUrl = processPhotoUrl(rawPhotoUrl);
       
       guests.push({
         screenName: screenName,
@@ -3494,7 +3492,7 @@ function processPhotoUrl(rawUrl) {
   }
   try {
     if (rawUrl.includes('drive.google.com')) {
-      const fileId = extractDriveFileId(rawUrl);
+      var fileId = extractDriveFileId(rawUrl);
       if (fileId) {
         return 'https://drive.google.com/uc?export=view&id=' + fileId;
       }
@@ -3517,7 +3515,7 @@ function extractDriveFileId(url) {
   if (!url) return null;
   
   // Format 1: /file/d/FILE_ID/
-  let match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  var match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (match) return match[1];
   
   // Format 2: ?id=FILE_ID
@@ -3537,26 +3535,26 @@ function extractDriveFileId(url) {
  */
 function cleanupPhotoUrls() {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
     
     if (!cleanSheet) {
       return { success: false, message: 'Sheet not found' };
     }
     
-    const data = cleanSheet.getDataRange().getValues();
-    const headers = data[0];
-    const photoCol = headers.indexOf('Photo URL') + 1; // Convert to 1-indexed
+    var data = cleanSheet.getDataRange().getValues();
+    var headers = data[0];
+    var photoCol = headers.indexOf('Photo URL') + 1; // Convert to 1-indexed
     
     if (photoCol === 0) {
       return { success: false, message: 'Photo URL column not found' };
     }
     
-    let fixedCount = 0;
-    let clearedCount = 0;
+    var fixedCount = 0;
+    var clearedCount = 0;
     
-    for (let i = 2; i <= data.length; i++) {
-      const rawUrl = String(data[i - 1][photoCol - 1] || '').trim();
+    for (var i = 2; i <= data.length; i++) {
+      var rawUrl = String(data[i - 1][photoCol - 1] || '').trim();
       
       // Clear invalid placeholder text
       if (rawUrl === 'Photo URL' || rawUrl === '') {
@@ -3567,9 +3565,9 @@ function cleanupPhotoUrls() {
       
       // Convert Drive URLs to thumbnail format
       if (rawUrl.includes('drive.google.com')) {
-        const fileId = extractDriveFileId(rawUrl);
+        var fileId = extractDriveFileId(rawUrl);
         if (fileId) {
-          const thumbnailUrl = 'https://drive.google.com/uc?export=view&id=' + fileId;
+          var thumbnailUrl = 'https://drive.google.com/uc?export=view&id=' + fileId;
           cleanSheet.getRange(i, photoCol).setValue(thumbnailUrl);
           fixedCount++;
         }
@@ -3578,7 +3576,7 @@ function cleanupPhotoUrls() {
     
     SpreadsheetApp.flush();
     
-    const message = 'Photo cleanup complete!
+    var message = 'Photo cleanup complete!
 ' +
                    'Fixed: ' + fixedCount + ' URLs
 ' +
@@ -3606,7 +3604,7 @@ function testPhotoLoading() {
   Logger.log('=== TESTING PHOTO LOADING ===
 ');
   
-  const guests = getDisplayPhotos();
+  var guests = getDisplayPhotos();
   
   Logger.log('Total checked-in guests: ' + guests.length);
   Logger.log('Guests with photos: ' + guests.filter(g => g.hasPhoto).length);
@@ -3629,9 +3627,9 @@ function testPhotoLoading() {
  * Manual cleanup function - RUN THIS to fix all URLs
  */
 function manualPhotoCleanup() {
-  const ui = SpreadsheetApp.getUi();
+  var ui = SpreadsheetApp.getUi();
   
-  const response = ui.alert(
+  var response = ui.alert(
     '📸 Photo URL Cleanup',
     'This will:
 ' +
@@ -3650,7 +3648,7 @@ function manualPhotoCleanup() {
     return;
   }
   
-  const result = cleanupPhotoUrls();
+  var result = cleanupPhotoUrls();
   
   ui.alert(
     result.success ? '✅ Success!' : '❌ Error',
@@ -3685,9 +3683,9 @@ function doGet(e) {
     }
     
     // Get page parameter from URL (?page=display)
-    const page = (e.parameter.page || 'display').toLowerCase();
+    var page = (e.parameter.page || 'display').toLowerCase();
     
-    Logger.log(`doGet called with page: ${page}`);
+    Logger.log('doGet called with page: ' + page);
     
     // Route to appropriate page
     switch(page) {
@@ -3721,7 +3719,7 @@ function doGet(e) {
       
       // === DEFAULT ===
       default:
-        Logger.log(`Unknown page requested: ${page}, defaulting to display`);
+        Logger.log('Unknown page requested: ' + page + ', defaulting to display');
         return serveDisplayPage();
     }
     
@@ -3737,7 +3735,7 @@ function doGet(e) {
  */
 function serveDisplayPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('Display')
+    var html = HtmlService.createTemplateFromFile('Display')
       .evaluate()
       .setTitle('Panopticon Display System')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3756,7 +3754,7 @@ function serveDisplayPage() {
  */
 function serveCheckInPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('CheckInInterface')
+    var html = HtmlService.createTemplateFromFile('CheckInInterface')
       .evaluate()
       .setTitle('Guest Check-In')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3775,7 +3773,7 @@ function serveCheckInPage() {
  */
 function serveIntroPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('intro')
+    var html = HtmlService.createTemplateFromFile('intro')
       .evaluate()
       .setTitle('Welcome to Panopticon')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3794,7 +3792,7 @@ function serveIntroPage() {
  */
 function serveWallPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('wall')
+    var html = HtmlService.createTemplateFromFile('wall')
       .evaluate()
       .setTitle('Network Visualization Wall')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3813,7 +3811,7 @@ function serveWallPage() {
  */
 function serveMatchmakerPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('mm')  // ← Changed to lowercase 'mm'
+    var html = HtmlService.createTemplateFromFile('mm')  // ← Changed to lowercase 'mm'
       .evaluate()
       .setTitle('Guest Matchmaker')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3832,7 +3830,7 @@ function serveMatchmakerPage() {
  */
 function serveMSAPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('msa')
+    var html = HtmlService.createTemplateFromFile('msa')
       .evaluate()
       .setTitle('MSA Analysis')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3851,7 +3849,7 @@ function serveMSAPage() {
  */
 function serveNetworkPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('network')
+    var html = HtmlService.createTemplateFromFile('network')
       .evaluate()
       .setTitle('Network Graph')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3870,7 +3868,7 @@ function serveNetworkPage() {
  */
 function serveMapPage() {
   try {
-    const html = HtmlService.createTemplateFromFile('map')
+    var html = HtmlService.createTemplateFromFile('map')
       .evaluate()
       .setTitle('Geographic Distribution')
       .setFaviconUrl('https://ssl.gstatic.com/docs/script/images/favicon.ico')
@@ -3900,68 +3898,66 @@ function include(filename) {
  * @return {HtmlOutput} Placeholder page
  */
 function createPlaceholderPage(pageName, title) {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${title}</title>
-      <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        body {
-          font-family: 'Arial', sans-serif;
-          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          color: white;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          text-align: center;
-          padding: 20px;
-        }
-        h1 {
-          font-size: 48px;
-          margin-bottom: 20px;
-          text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        p {
-          font-size: 20px;
-          opacity: 0.9;
-          max-width: 600px;
-          line-height: 1.6;
-        }
-        .icon {
-          font-size: 80px;
-          margin-bottom: 30px;
-          opacity: 0.7;
-        }
-        .status {
-          margin-top: 40px;
-          padding: 15px 30px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          backdrop-filter: blur(10px);
-        }
-      </style>
-    </head>
-    <body>
-      <div class="icon">🚧</div>
-      <h1>${title}</h1>
-      <p>This page is currently under construction.</p>
-      <div class="status">
-        <strong>Page:</strong> ${pageName}.html<br>
-        <strong>Status:</strong> Coming Soon
-      </div>
-    </body>
-    </html>
-  `;
-  
+  var html = '    <!DOCTYPE html>\n' +
+    '    <html>\n' +
+    '    <head>\n' +
+    '      <meta charset="UTF-8">\n' +
+    '      <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+    '      <title>' + title + '</title>\n' +
+    '      <style>\n' +
+    '        * {\n' +
+    '          margin: 0;\n' +
+    '          padding: 0;\n' +
+    '          box-sizing: border-box;\n' +
+    '        }\n' +
+    '        body {\n' +
+    '          font-family: \'Arial\', sans-serif;\n' +
+    '          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);\n' +
+    '          color: white;\n' +
+    '          display: flex;\n' +
+    '          flex-direction: column;\n' +
+    '          justify-content: center;\n' +
+    '          align-items: center;\n' +
+    '          height: 100vh;\n' +
+    '          text-align: center;\n' +
+    '          padding: 20px;\n' +
+    '        }\n' +
+    '        h1 {\n' +
+    '          font-size: 48px;\n' +
+    '          margin-bottom: 20px;\n' +
+    '          text-shadow: 0 2px 10px rgba(0,0,0,0.3);\n' +
+    '        }\n' +
+    '        p {\n' +
+    '          font-size: 20px;\n' +
+    '          opacity: 0.9;\n' +
+    '          max-width: 600px;\n' +
+    '          line-height: 1.6;\n' +
+    '        }\n' +
+    '        .icon {\n' +
+    '          font-size: 80px;\n' +
+    '          margin-bottom: 30px;\n' +
+    '          opacity: 0.7;\n' +
+    '        }\n' +
+    '        .status {\n' +
+    '          margin-top: 40px;\n' +
+    '          padding: 15px 30px;\n' +
+    '          background: rgba(255, 255, 255, 0.1);\n' +
+    '          border-radius: 10px;\n' +
+    '          backdrop-filter: blur(10px);\n' +
+    '        }\n' +
+    '      </style>\n' +
+    '    </head>\n' +
+    '    <body>\n' +
+    '      <div class="icon">🚧</div>\n' +
+    '      <h1>' + title + '</h1>\n' +
+    '      <p>This page is currently under construction.</p>\n' +
+    '      <div class="status">\n' +
+    '        <strong>Page:</strong> ' + pageName + '.html<br>\n' +
+    '        <strong>Status:</strong> Coming Soon\n' +
+    '      </div>\n' +
+    '    </body>\n' +
+    '    </html>\n';
+
   return HtmlService.createHtmlOutput(html)
     .setTitle(title)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -3973,50 +3969,48 @@ function createPlaceholderPage(pageName, title) {
  * @return {HtmlOutput} Error page
  */
 function createErrorPage(error) {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Error</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          background: #1a1a1a;
-          color: #ff4444;
-          padding: 40px;
-          text-align: center;
-        }
-        h1 { margin-bottom: 20px; }
-        pre {
-          background: #2a2a2a;
-          padding: 20px;
-          border-radius: 5px;
-          text-align: left;
-          overflow: auto;
-          color: #ffaa00;
-        }
-        a {
-          display: inline-block;
-          margin-top: 20px;
-          padding: 10px 20px;
-          background: #333;
-          color: white;
-          text-decoration: none;
-          border-radius: 5px;
-        }
-        a:hover { background: #444; }
-      </style>
-    </head>
-    <body>
-      <h1>⚠️ Error Loading Page</h1>
-      <pre>${error.toString()}</pre>
-      <a href="?page=display">Go to Display System</a>
-      <a href="?page=checkin">Go to Check-In</a>
-    </body>
-    </html>
-  `;
-  
+  var html = '    <!DOCTYPE html>\n' +
+    '    <html>\n' +
+    '    <head>\n' +
+    '      <meta charset="UTF-8">\n' +
+    '      <title>Error</title>\n' +
+    '      <style>\n' +
+    '        body {\n' +
+    '          font-family: Arial, sans-serif;\n' +
+    '          background: #1a1a1a;\n' +
+    '          color: #ff4444;\n' +
+    '          padding: 40px;\n' +
+    '          text-align: center;\n' +
+    '        }\n' +
+    '        h1 { margin-bottom: 20px; }\n' +
+    '        pre {\n' +
+    '          background: #2a2a2a;\n' +
+    '          padding: 20px;\n' +
+    '          border-radius: 5px;\n' +
+    '          text-align: left;\n' +
+    '          overflow: auto;\n' +
+    '          color: #ffaa00;\n' +
+    '        }\n' +
+    '        a {\n' +
+    '          display: inline-block;\n' +
+    '          margin-top: 20px;\n' +
+    '          padding: 10px 20px;\n' +
+    '          background: #333;\n' +
+    '          color: white;\n' +
+    '          text-decoration: none;\n' +
+    '          border-radius: 5px;\n' +
+    '        }\n' +
+    '        a:hover { background: #444; }\n' +
+    '      </style>\n' +
+    '    </head>\n' +
+    '    <body>\n' +
+    '      <h1>⚠️ Error Loading Page</h1>\n' +
+    '      <pre>' + error.toString() + '</pre>\n' +
+    '      <a href="?page=display">Go to Display System</a>\n' +
+    '      <a href="?page=checkin">Go to Check-In</a>\n' +
+    '    </body>\n' +
+    '    </html>\n';
+
   return HtmlService.createHtmlOutput(html);
 }
 
@@ -4025,7 +4019,7 @@ function createErrorPage(error) {
  * Run this to quickly test your deployment
  */
 function testOpenDisplay() {
-  const url = ScriptApp.getService().getUrl();
+  var url = ScriptApp.getService().getUrl();
   Logger.log('Web App URL: ' + url);
   Logger.log('Display URL: ' + url + '?page=display');
   Logger.log('Check-in URL: ' + url + '?page=checkin');
@@ -4050,16 +4044,16 @@ function testOpenDisplay() {
  * Test function - verify all pages load
  */
 function testAllPages() {
-  const pages = ['display', 'checkin', 'intro', 'wall', 'mm', 'msa', 'network', 'map'];
-  const results = [];
+  var pages = ['display', 'checkin', 'intro', 'wall', 'mm', 'msa', 'network', 'map'];
+  var results = [];
   
   pages.forEach(page => {
     try {
-      const mockEvent = { parameter: { page: page } };
-      const result = doGet(mockEvent);
-      results.push(`✅ ${page}: OK`);
+      var mockEvent = { parameter: { page: page } };
+      var result = doGet(mockEvent);
+      results.push('✅ ' + page + ': OK');
     } catch (error) {
-      results.push(`❌ ${page}: ${error.toString()}`);
+      results.push('❌ ' + page + ': ' + error.toString());
     }
   });
   
