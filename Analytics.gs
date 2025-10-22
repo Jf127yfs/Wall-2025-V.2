@@ -189,7 +189,8 @@ var SPEC = [
 
 
 function mergeAnalyticsMenu(menu) {
-  return menu.addSubMenu(SpreadsheetApp.getUi().createMenu('📊 Analytics')
+  return menu
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('📊 Analytics')
       .addItem('Run All Analytics', 'runAllAnalytics')
       .addSeparator()
       .addItem('Build Pan Sheets', 'buildPanSheets')
@@ -197,11 +198,15 @@ function mergeAnalyticsMenu(menu) {
       .addItem('Build Cramers V', 'buildCramersVClean')
       .addSeparator()
       .addItem('Run DDD (All)', 'runDDDAll')
-      .addItem('Run DDD (Checked-In Only)', 'runDDDCheckedIn'))
-    .addSeparator()
-    .addItem('🔄 Check Setup', 'checkSetup')
-    .addItem('🌐 Open Display', 'testOpenDisplay')
-    .addItem('📸 Fix Photos', 'testPhotoLoading');
+      .addItem('Run DDD (Checked-In Only)', 'runDDDCheckedIn')
+      .addSeparator()
+      .addItem('🔨 Build Pan Sheets (Requires Pan_Analytics.gs)', 'PLACEHOLDER_FOR_PAN_SHEETS')
+      .addItem('⭐ Generate Master Label Report', 'generateMasterLabelReport'))
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('🔧 Admin Tools')
+      .addItem('Export All Sheets as CSV', 'exportAllSheetsAsCsv'))
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('📋 Documentation')
+      .addItem('Generate Master_Desc', 'generateMasterDesc')
+      .addItem('Refresh All Analytics', 'refreshAllAnalytics'));
 }
 
 
@@ -1538,23 +1543,11 @@ var GAMING_MUSIC_CODES = [1, 2, 3, 4, 6];
 
 /**
 
- * Creates custom menu when spreadsheet opens
+ * Menu creation handled by mergeAnalyticsMenu() function
+
+ * Called from main onOpen() in onOpen.gs
 
  */
-
-function onOpen() {
-
-  SpreadsheetApp.getUi()
-
-    .createMenu('📊 Analytics')
-
-    .addItem('🔨 Build Pan Sheets (Requires Pan_Analytics.gs)', 'PLACEHOLDER_FOR_PAN_SHEETS')
-
-    .addItem('⭐ Generate Master Label Report', 'generateMasterLabelReport')
-
-    .addToUi();
-
-}
 
 
 
@@ -7489,23 +7482,11 @@ var TARGET_FOLDER_ID = '1iR4UQ1V8Iy4IIbqN5Ifzi6zUNt8bRueB';
 
 /**
 
- * Creates a custom menu in the spreadsheet UI for admin tasks.
+ * Admin menu handled by mergeAnalyticsMenu() function
 
- * This runs automatically when the spreadsheet is opened.
+ * Called from main onOpen() in onOpen.gs
 
  */
-
-function onOpen() {
-
-  SpreadsheetApp.getUi()
-
-      .createMenu('Admin Tools')
-
-      .addItem('Export All Sheets as CSV', 'exportAllSheetsAsCsv')
-
-      .addToUi();
-
-}
 
 
 
@@ -10034,25 +10015,11 @@ var MASTER_DESC_SHEET = 'Master_Desc';
 
 /**
 
- * Add menu item to Google Sheets UI
+ * Documentation menu handled by mergeAnalyticsMenu() function
 
- * Run this automatically when spreadsheet opens
+ * Called from main onOpen() in onOpen.gs
 
  */
-
-function onOpen() {
-
-  SpreadsheetApp.getUi()
-
-    .createMenu('📋 Documentation')
-
-    .addItem('Generate Master_Desc', 'generateMasterDesc')
-
-    .addItem('Refresh All Analytics', 'refreshAllAnalytics')
-
-    .addToUi();
-
-}
 
 
 
