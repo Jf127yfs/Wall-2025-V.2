@@ -538,7 +538,7 @@ function checkInGuest(payload) {
     var md = monthDayFromCell_(rowDOBRaw);
     if (!md || md.m !== wantMD.m || md.d !== wantMD.d) continue;
 
-    matches.push({ r, row });
+    matches.push({ r: r, row: row });
     Logger.log('Match found at row ' + (r + 1));
   }
 
