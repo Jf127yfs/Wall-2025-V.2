@@ -34,21 +34,21 @@
 
 // Source and output sheets
 
-const PA_SOURCE_SHEET = 'Form Responses 1';
+var PA_SOURCE_SHEET = 'Form Responses 1';
 
-const PA_CLEAN_SHEET = 'Form Responses (Clean)';
+var PA_CLEAN_SHEET = 'Form Responses (Clean)';
 
-const PA_DISTS_SHEET = 'Distributions (Clean)';
+var PA_DISTS_SHEET = 'Distributions (Clean)';
 
-const PAN_DICT_SHEET = 'Pan_Dict';
+var PAN_DICT_SHEET = 'Pan_Dict';
 
-const PAN_MASTER_SHEET = 'Pan_Master';
+var PAN_MASTER_SHEET = 'Pan_Master';
 
 
 
 // Required headers for validation
 
-const PA_REQUIRED_HEADERS = [
+var PA_REQUIRED_HEADERS = [
 
   'Current 5 Digit Zip Code',
 
@@ -72,7 +72,7 @@ const PA_REQUIRED_HEADERS = [
 
 // Headers for distribution analysis
 
-const PA_DIST_HEADERS = [
+var PA_DIST_HEADERS = [
 
   'Zodiac Sign',
 
@@ -104,7 +104,7 @@ const PA_DIST_HEADERS = [
 
 // Variable specification for Pan_Master
 
-const SPEC = [
+var SPEC = [
 
   { key: 'timestamp', header: 'Timestamp', type: 'timestamp' },
 
@@ -189,7 +189,8 @@ const SPEC = [
 
 
 function mergeAnalyticsMenu(menu) {
-  return menu.addSubMenu(SpreadsheetApp.getUi().createMenu('📊 Analytics')
+  return menu
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('📊 Analytics')
       .addItem('Run All Analytics', 'runAllAnalytics')
       .addSeparator()
       .addItem('Build Pan Sheets', 'buildPanSheets')
@@ -197,11 +198,15 @@ function mergeAnalyticsMenu(menu) {
       .addItem('Build Cramers V', 'buildCramersVClean')
       .addSeparator()
       .addItem('Run DDD (All)', 'runDDDAll')
-      .addItem('Run DDD (Checked-In Only)', 'runDDDCheckedIn'))
-    .addSeparator()
-    .addItem('🔄 Check Setup', 'checkSetup')
-    .addItem('🌐 Open Display', 'testOpenDisplay')
-    .addItem('📸 Fix Photos', 'testPhotoLoading');
+      .addItem('Run DDD (Checked-In Only)', 'runDDDCheckedIn')
+      .addSeparator()
+      .addItem('🔨 Build Pan Sheets (Requires Pan_Analytics.gs)', 'PLACEHOLDER_FOR_PAN_SHEETS')
+      .addItem('⭐ Generate Master Label Report', 'generateMasterLabelReport'))
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('🔧 Admin Tools')
+      .addItem('Export All Sheets as CSV', 'exportAllSheetsAsCsv'))
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('📋 Documentation')
+      .addItem('Generate Master_Desc', 'generateMasterDesc')
+      .addItem('Refresh All Analytics', 'refreshAllAnalytics'));
 }
 
 
@@ -1474,21 +1479,21 @@ function writeSheet_(name, values) {
 
 
 
-const MASTER_SHEET = 'Pan_Master';
+var MASTER_SHEET = 'Pan_Master';
 
-const REPORT_SHEET = 'Label_Report';
+var REPORT_SHEET = 'Label_Report';
 
-const LABEL_COLUMN_NAME = 'Guest Label';
+var LABEL_COLUMN_NAME = 'Guest Label';
 
 
 
 // Party Date (The year doesn't matter for MM/DD comparisons)
 
-const PARTY_MONTH = 10; 
+var PARTY_MONTH = 10; 
 
-const PARTY_DAY = 25;
+var PARTY_DAY = 25;
 
-const BIRTHDAY_WINDOW_DAYS = 10; // +/- 10 days from Oct 25
+var BIRTHDAY_WINDOW_DAYS = 10; // +/- 10 days from Oct 25
 
 
 
@@ -1496,11 +1501,11 @@ const BIRTHDAY_WINDOW_DAYS = 10; // +/- 10 days from Oct 25
 
 // Age Codes for Young Cohort: 1:21-24, 2:25-29 (These are the base groups being analyzed)
 
-const OLD_SOUL_AGE_CODES = [1, 2]; 
+var OLD_SOUL_AGE_CODES = [1, 2]; 
 
 // Music Codes for Trait: Pop (1) is the preference correlated with 30-34 group.
 
-const OLD_SOUL_MUSIC_CODES = [1]; // Pop music code
+var OLD_SOUL_MUSIC_CODES = [1]; // Pop music code
 
 
 
@@ -1508,13 +1513,13 @@ const OLD_SOUL_MUSIC_CODES = [1]; // Pop music code
 
 // Codes: 5: Yes—3–5 years, 6: Yes—5–10 years, 7: Yes—more than 10 years
 
-const HOST_VIP_CODES = [5, 6, 7]; 
+var HOST_VIP_CODES = [5, 6, 7]; 
 
 
 
 // Party Starter Criteria: High score on social stance scale (4 or 5 on 1-5 scale)
 
-const PARTY_STARTER_THRESHOLD = 4; 
+var PARTY_STARTER_THRESHOLD = 4; 
 
 
 
@@ -1522,7 +1527,7 @@ const PARTY_STARTER_THRESHOLD = 4;
 
 // Music Codes: Pop (1), Rock (2), Hip-hop (3), Electronic (4), Indie/Alt (6) (based on provided Pan_Dict)
 
-const GAMING_MUSIC_CODES = [1, 2, 3, 4, 6]; 
+var GAMING_MUSIC_CODES = [1, 2, 3, 4, 6]; 
 
 
 
@@ -1538,23 +1543,11 @@ const GAMING_MUSIC_CODES = [1, 2, 3, 4, 6];
 
 /**
 
- * Creates custom menu when spreadsheet opens
+ * Menu creation handled by mergeAnalyticsMenu() function
+
+ * Called from main onOpen() in onOpen.gs
 
  */
-
-function onOpen() {
-
-  SpreadsheetApp.getUi()
-
-    .createMenu('📊 Analytics')
-
-    .addItem('🔨 Build Pan Sheets (Requires Pan_Analytics.gs)', 'PLACEHOLDER_FOR_PAN_SHEETS')
-
-    .addItem('⭐ Generate Master Label Report', 'generateMasterLabelReport')
-
-    .addToUi();
-
-}
 
 
 
@@ -1568,17 +1561,17 @@ function onOpen() {
 
 function generateMasterLabelReport() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const sh = ss.getSheetByName(MASTER_SHEET);
+  var sh = ss.getSheetByName(MASTER_SHEET);
 
-  const ui = SpreadsheetApp.getUi();
+  var ui = SpreadsheetApp.getUi();
 
 
 
   if (!sh) {
 
-    ui.alert('Error', `Source sheet "${MASTER_SHEET}" not found. Please ensure Pan_Master exists.`, ui.ButtonSet.OK);
+    ui.alert('Error', 'Source sheet "' + MASTER_SHEET + '" not found. Please ensure Pan_Master exists.', ui.ButtonSet.OK);
 
     return;
 
@@ -1594,17 +1587,17 @@ function generateMasterLabelReport() {
 
   // NOTE: dataRange and values MUST be re-read if a column is added.
 
-  let dataRange = sh.getDataRange();
+  var dataRange = sh.getDataRange();
 
-  let values = dataRange.getValues();
+  var values = dataRange.getValues();
 
-  const headers = values[0];
+  var headers = values[0];
 
   
 
   // 1. Get column indices (0-based)
 
-  const idx = getColumnIndices_(headers);
+  var idx = getColumnIndices_(headers);
 
   if (!checkRequiredColumns_(ui, idx)) return; // Check required columns
 
@@ -1612,7 +1605,7 @@ function generateMasterLabelReport() {
 
   // 2. Add or find the Label column
 
-  let labelColIndex = headers.indexOf(LABEL_COLUMN_NAME);
+  var labelColIndex = headers.indexOf(LABEL_COLUMN_NAME);
 
   if (labelColIndex === -1) {
 
@@ -1638,21 +1631,21 @@ function generateMasterLabelReport() {
 
   // 3. Process data rows and generate labels
 
-  const partyDate = new Date(2000, PARTY_MONTH - 1, PARTY_DAY); 
+  var partyDate = new Date(2000, PARTY_MONTH - 1, PARTY_DAY); 
 
-  const labelsToApply = [];
+  var labelsToApply = [];
 
-  const reportRows = [];
+  var reportRows = [];
 
-  const labelSummary = {};
+  var labelSummary = {};
 
   
 
-  for (let i = 1; i < values.length; i++) {
+  for (var i = 1; i < values.length; i++) {
 
-    const row = values[i];
+    var row = values[i];
 
-    const labels = [];
+    var labels = [];
 
     
 
@@ -1692,7 +1685,7 @@ function generateMasterLabelReport() {
 
 
 
-    const labelString = labels.join(', ');
+    var labelString = labels.join(', ');
 
     labelsToApply.push([labelString]);
 
@@ -1700,9 +1693,9 @@ function generateMasterLabelReport() {
 
     // Prepare data for report and summary (Screen Name, UID, Label String)
 
-    const screenName = row[idx.screenName] || 'N/A';
+    var screenName = row[idx.screenName] || 'N/A';
 
-    const uid = row[idx.uid] || 'N/A';
+    var uid = row[idx.uid] || 'N/A';
 
     reportRows.push([screenName, uid, labelString]);
 
@@ -1734,20 +1727,19 @@ function generateMasterLabelReport() {
 
   // --- PHASE 2: GENERATE LABEL REPORT SHEET ---
 
-  const reportSh = clearOrCreateReportSheet_();
+  var reportSh = clearOrCreateReportSheet_();
 
-  const nextStartRow = writeSummarySection_(reportSh, labelSummary, reportRows.length);
+  var nextStartRow = writeSummarySection_(reportSh, labelSummary, reportRows.length);
 
   writeDetailedGuestSection_(reportSh, reportRows, nextStartRow);
 
   
 
-  ui.alert('✅ Master Report Complete', 
+  ui.alert('✅ Master Report Complete',
 
-    `1. 'Guest Label' column updated in Pan_Master.
-` +
+    '1. \'Guest Label\' column updated in Pan_Master.\n' +
 
-    `2. Detailed summary report created in "${REPORT_SHEET}".`, 
+    '2. Detailed summary report created in "' + REPORT_SHEET + '".', 
 
     ui.ButtonSet.OK
 
@@ -1795,43 +1787,43 @@ function isNearBirthday_(birthdayMMDD, partyDate) {
 
   
 
-  const parts = birthdayMMDD.split('/').map(s => parseInt(s, 10));
+  var parts = birthdayMMDD.split('/').map(s => parseInt(s, 10));
 
   if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return false;
 
 
 
-  const month = parts[0];
+  var month = parts[0];
 
-  const day = parts[1];
+  var day = parts[1];
 
   
 
   // Use year 2000 for non-leap year parity for all date comparisons
 
-  const bDate = new Date(2000, month - 1, day); 
+  var bDate = new Date(2000, month - 1, day); 
 
   
 
   // Calculate differences
 
-  const msInDay = 1000 * 60 * 60 * 24;
+  var msInDay = 1000 * 60 * 60 * 24;
 
-  const diffDays = Math.abs((bDate.getTime() - partyDate.getTime()) / msInDay);
+  var diffDays = Math.abs((bDate.getTime() - partyDate.getTime()) / msInDay);
 
   
 
   // Account for wrap-around (e.g., Oct 25 vs Jan 1) by checking adjacent years
 
-  const bDateLastYear = new Date(1999, month - 1, day);
+  var bDateLastYear = new Date(1999, month - 1, day);
 
-  const bDateNextYear = new Date(2001, month - 1, day);
+  var bDateNextYear = new Date(2001, month - 1, day);
 
   
 
-  const diffDaysWrapLast = Math.abs((bDateLastYear.getTime() - partyDate.getTime()) / msInDay);
+  var diffDaysWrapLast = Math.abs((bDateLastYear.getTime() - partyDate.getTime()) / msInDay);
 
-  const diffDaysWrapNext = Math.abs((bDateNextYear.getTime() - partyDate.getTime()) / msInDay);
+  var diffDaysWrapNext = Math.abs((bDateNextYear.getTime() - partyDate.getTime()) / msInDay);
 
 
 
@@ -1859,7 +1851,7 @@ function getNumericCode(value) {
 
     // Attempt to convert strings (like '5') or keep numbers (like 5)
 
-    const num = Number(String(value).trim());
+    var num = Number(String(value).trim());
 
     return isNaN(num) ? NaN : num;
 
@@ -1877,9 +1869,9 @@ function getNumericCode(value) {
 
 function isOldSoul_(ageCode, musicPrefCode) {
 
-    const age = getNumericCode(ageCode);
+    var age = getNumericCode(ageCode);
 
-    const music = getNumericCode(musicPrefCode);
+    var music = getNumericCode(musicPrefCode);
 
     
 
@@ -1891,11 +1883,11 @@ function isOldSoul_(ageCode, musicPrefCode) {
 
     // Age must be 21-29 (Codes 1 or 2)
 
-    const isYoungCohort = OLD_SOUL_AGE_CODES.includes(age);
+    var isYoungCohort = OLD_SOUL_AGE_CODES.includes(age);
 
     // Music must be Pop (Code 1) which correlates with 30-34 group
 
-    const exhibitsOlderTrait = OLD_SOUL_MUSIC_CODES.includes(music);
+    var exhibitsOlderTrait = OLD_SOUL_MUSIC_CODES.includes(music);
 
 
 
@@ -1913,7 +1905,7 @@ function isOldSoul_(ageCode, musicPrefCode) {
 
 function isHostVIP_(knowHostsCode) {
 
-    const code = getNumericCode(knowHostsCode);
+    var code = getNumericCode(knowHostsCode);
 
     
 
@@ -1933,7 +1925,7 @@ function isHostVIP_(knowHostsCode) {
 
 function isPartyStarter_(socialStanceCode) {
 
-    const code = getNumericCode(socialStanceCode);
+    var code = getNumericCode(socialStanceCode);
 
     
 
@@ -1955,11 +1947,11 @@ function isGamingGuru_(gamingInterest, musicPrefCode) {
 
     // 'oh_interests_Gaming' is a binary column (1 or 0)
 
-    const isGaming = getNumericCode(gamingInterest) === 1; 
+    var isGaming = getNumericCode(gamingInterest) === 1; 
 
     
 
-    const musicCode = getNumericCode(musicPrefCode);
+    var musicCode = getNumericCode(musicPrefCode);
 
     if (isNaN(musicCode)) return false;
 
@@ -1967,7 +1959,7 @@ function isGamingGuru_(gamingInterest, musicPrefCode) {
 
     // Music Codes: Pop, Rock, Hip-hop, Electronic, Indie/Alt
 
-    const hasGamingMusic = GAMING_MUSIC_CODES.includes(musicCode); 
+    var hasGamingMusic = GAMING_MUSIC_CODES.includes(musicCode); 
 
 
 
@@ -2027,15 +2019,15 @@ function getColumnIndices_(headers) {
 
 function checkRequiredColumns_(ui, idx) {
 
-    const required = ['Screen Name', 'UID', 'Birthday_MM/DD', 'code_age_range', 'code_know_hosts', 'code_music_pref', 'oh_interests_Gaming', 'code_social_stance'];
+    var required = ['Screen Name', 'UID', 'Birthday_MM/DD', 'code_age_range', 'code_know_hosts', 'code_music_pref', 'oh_interests_Gaming', 'code_social_stance'];
 
-    const missing = [];
+    var missing = [];
 
     
 
     // Loop through the named properties of the index map to check for -1
 
-    for (const key in idx) {
+    for (var key in idx) {
 
         // Find the header name associated with the index key to check if it's one of the required fields
 
@@ -2045,7 +2037,7 @@ function checkRequiredColumns_(ui, idx) {
 
             // We use a general check to see if the index is -1 for critical codes
 
-            const headerNames = {
+            var headerNames = {
 
                 'screenName': 'Screen Name', 'uid': 'UID', 'birthday': 'Birthday_MM/DD',
 
@@ -2067,11 +2059,11 @@ function checkRequiredColumns_(ui, idx) {
 
         // Final check on critical codes
 
-        const criticalMissing = missing.filter(name => required.includes(name));
+        var criticalMissing = missing.filter(name => required.includes(name));
 
         if (criticalMissing.length > 0) {
 
-            ui.alert('Fatal Error', `Missing required columns in Pan_Master: ${criticalMissing.join(', ')}. Please run Pan_Analytics build functions first.`, ui.ButtonSet.OK);
+            ui.alert('Fatal Error', 'Missing required columns in Pan_Master: ' + criticalMissing.join(', ') + '. Please run Pan_Analytics build functions first.', ui.ButtonSet.OK);
 
             return false;
 
@@ -2093,21 +2085,21 @@ function checkRequiredColumns_(ui, idx) {
 
 function writeSummarySection_(sh, summary, totalGuests) {
 
-  const summaryHeader = ['Label Archetype', 'Guest Count', 'Percentage (%)'];
+  var summaryHeader = ['Label Archetype', 'Guest Count', 'Percentage (%)'];
 
-  const summaryData = [];
+  var summaryData = [];
 
   
 
-  const sortedLabels = Object.keys(summary).sort((a, b) => summary[b] - summary[a]);
+  var sortedLabels = Object.keys(summary).sort((a, b) => summary[b] - summary[a]);
 
 
 
   sortedLabels.forEach(label => {
 
-    const count = summary[label];
+    var count = summary[label];
 
-    const percentage = count / totalGuests;
+    var percentage = count / totalGuests;
 
     summaryData.push([label, count, percentage]);
 
@@ -2115,7 +2107,7 @@ function writeSummarySection_(sh, summary, totalGuests) {
 
   
 
-  const totalRow = ['TOTAL GUESTS PROCESSED', totalGuests, totalGuests > 0 ? 1 : 0];
+  var totalRow = ['TOTAL GUESTS PROCESSED', totalGuests, totalGuests > 0 ? 1 : 0];
 
 
 
@@ -2129,7 +2121,7 @@ function writeSummarySection_(sh, summary, totalGuests) {
 
   // Write summary data
 
-  const startRow = 3;
+  var startRow = 3;
 
   sh.getRange(startRow, 1, 1, summaryHeader.length).setValues([summaryHeader]);
 
@@ -2139,7 +2131,7 @@ function writeSummarySection_(sh, summary, totalGuests) {
 
   // Write total row
 
-  const totalRowIndex = startRow + summaryData.length + 1;
+  var totalRowIndex = startRow + summaryData.length + 1;
 
   sh.getRange(totalRowIndex, 1, 1, summaryHeader.length).setValues([totalRow]);
 
@@ -2191,7 +2183,7 @@ function writeSummarySection_(sh, summary, totalGuests) {
 
 function writeDetailedGuestSection_(sh, rows, startRow) {
 
-  const detailHeader = ['Screen Name', 'UID', LABEL_COLUMN_NAME];
+  var detailHeader = ['Screen Name', 'UID', LABEL_COLUMN_NAME];
 
   
 
@@ -2203,7 +2195,7 @@ function writeDetailedGuestSection_(sh, rows, startRow) {
 
   
 
-  const dataStartRow = startRow + 2;
+  var dataStartRow = startRow + 2;
 
   
 
@@ -2247,9 +2239,9 @@ function writeDetailedGuestSection_(sh, rows, startRow) {
 
 function clearOrCreateReportSheet_() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  let sh = ss.getSheetByName(REPORT_SHEET);
+  var sh = ss.getSheetByName(REPORT_SHEET);
 
   if (!sh) {
 
@@ -2340,21 +2332,21 @@ function clearOrCreateReportSheet_() {
 
 function buildDemographicsSummary() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
 
   
 
   if (!cleanSheet) {
 
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
 
   }
 
 
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
 
   if (data.length < 2) {
 
@@ -2366,17 +2358,17 @@ function buildDemographicsSummary() {
 
 
 
-  const header = data[0];
+  var header = data[0];
 
-  const colIdx = getColumnMap_(header);
+  var colIdx = getColumnMap_(header);
 
 
 
   // Calculate overview metrics
 
-  const totalCount = data.length - 1;
+  var totalCount = data.length - 1;
 
-  const checkedInCount = data.slice(1).filter(row => 
+  var checkedInCount = data.slice(1).filter(row => 
 
     String(row[colIdx['Checked-In at Event']] || '').trim().toUpperCase() === 'Y'
 
@@ -2386,7 +2378,7 @@ function buildDemographicsSummary() {
 
   // Build report sections
 
-  const sections = [];
+  var sections = [];
 
 
 
@@ -2410,7 +2402,7 @@ function buildDemographicsSummary() {
 
   // Add distribution sections
 
-  const demographicFields = [
+  var demographicFields = [
 
     ['Age Range', 'AGE RANGE DISTRIBUTION'],
 
@@ -2432,7 +2424,7 @@ function buildDemographicsSummary() {
 
   demographicFields.forEach(([colName, title]) => {
 
-    sections.push(...buildDistribution_(data, colIdx, colName, title, 'Checked-In at Event'));
+    Array.prototype.push.apply(sections, buildDistribution_(data, colIdx, colName, title, 'Checked-In at Event'));
 
     sections.push(['']);
 
@@ -2456,9 +2448,9 @@ function buildDemographicsSummary() {
 
 function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
 
-  const dataColIdx = colIdx[colName];
+  var dataColIdx = colIdx[colName];
 
-  const checkedInIdx = colIdx[checkedInCol];
+  var checkedInIdx = colIdx[checkedInCol];
 
   
 
@@ -2470,17 +2462,17 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
 
 
 
-  const totalCounts = {};
+  var totalCounts = {};
 
-  const checkedInCounts = {};
+  var checkedInCounts = {};
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][dataColIdx] || '').trim();
+    var value = String(data[i][dataColIdx] || '').trim();
 
-    const isCheckedIn = String(data[i][checkedInIdx] || '').trim().toUpperCase() === 'Y';
+    var isCheckedIn = String(data[i][checkedInIdx] || '').trim().toUpperCase() === 'Y';
 
 
 
@@ -2500,15 +2492,15 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
 
 
 
-  const sortedValues = Object.keys(totalCounts).sort((a, b) => totalCounts[b] - totalCounts[a]);
+  var sortedValues = Object.keys(totalCounts).sort((a, b) => totalCounts[b] - totalCounts[a]);
 
-  const totalSum = Object.values(totalCounts).reduce((a, b) => a + b, 0);
+  var totalSum = Object.values(totalCounts).reduce((a, b) => a + b, 0);
 
-  const checkedInSum = Object.values(checkedInCounts).reduce((a, b) => a + b, 0);
+  var checkedInSum = Object.values(checkedInCounts).reduce((a, b) => a + b, 0);
 
 
 
-  const rows = [
+  var rows = [
 
     [title],
 
@@ -2520,17 +2512,17 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
 
   sortedValues.forEach(value => {
 
-    const totalCount = totalCounts[value];
+    var totalCount = totalCounts[value];
 
-    const checkedInCount = checkedInCounts[value] || 0;
+    var checkedInCount = checkedInCounts[value] || 0;
 
-    const totalPct = ((totalCount / totalSum) * 100).toFixed(1);
+    var totalPct = ((totalCount / totalSum) * 100).toFixed(1);
 
-    const checkedInPct = checkedInSum > 0 ? ((checkedInCount / checkedInSum) * 100).toFixed(1) : '0.0';
+    var checkedInPct = checkedInSum > 0 ? ((checkedInCount / checkedInSum) * 100).toFixed(1) : '0.0';
 
 
 
-    rows.push([value, totalCount, `${totalPct}%`, checkedInCount, `${checkedInPct}%`]);
+    rows.push([value, totalCount, totalPct + '%', checkedInCount, checkedInPct + '%']);
 
   });
 
@@ -2548,19 +2540,19 @@ function buildDistribution_(data, colIdx, colName, title, checkedInCol) {
 
 function formatDemographicsSheet_() {
 
-  const sheet = SpreadsheetApp.getActive().getSheetByName('Demographics_Summary');
+  var sheet = SpreadsheetApp.getActive().getSheetByName('Demographics_Summary');
 
   if (!sheet) return;
 
 
 
-  const data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getValues();
 
   
 
-  for (let row = 1; row <= data.length; row++) {
+  for (var row = 1; row <= data.length; row++) {
 
-    const cellValue = String(data[row - 1][0] || '').trim();
+    var cellValue = String(data[row - 1][0] || '').trim();
 
     
 
@@ -2590,7 +2582,7 @@ function formatDemographicsSheet_() {
 
 
 
-  for (let col = 1; col <= 5; col++) {
+  for (var col = 1; col <= 5; col++) {
 
     sheet.autoResizeColumn(col);
 
@@ -2618,21 +2610,21 @@ function formatDemographicsSheet_() {
 
 function buildMusicInterestsReport() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
 
   
 
   if (!cleanSheet) {
 
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
 
   }
 
 
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
 
   if (data.length < 2) {
 
@@ -2644,13 +2636,13 @@ function buildMusicInterestsReport() {
 
 
 
-  const header = data[0];
+  var header = data[0];
 
-  const colIdx = getColumnMap_(header);
+  var colIdx = getColumnMap_(header);
 
 
 
-  const sections = [];
+  var sections = [];
 
 
 
@@ -2664,7 +2656,7 @@ function buildMusicInterestsReport() {
 
   // Music Preferences
 
-  sections.push(...buildMusicPreferences_(data, colIdx));
+  Array.prototype.push.apply(sections, buildMusicPreferences_(data, colIdx));
 
   sections.push(['']);
 
@@ -2672,7 +2664,7 @@ function buildMusicInterestsReport() {
 
   // Top Artists
 
-  sections.push(...buildTopArtists_(data, colIdx, 15));
+  Array.prototype.push.apply(sections, buildTopArtists_(data, colIdx, 15));
 
   sections.push(['']);
 
@@ -2680,7 +2672,7 @@ function buildMusicInterestsReport() {
 
   // Top Interests
 
-  sections.push(...buildTopInterests_(data, colIdx));
+  Array.prototype.push.apply(sections, buildTopInterests_(data, colIdx));
 
   sections.push(['']);
 
@@ -2688,7 +2680,7 @@ function buildMusicInterestsReport() {
 
   // Music by Age
 
-  sections.push(...buildMusicByDemographic_(data, colIdx, 'Age Range', 'AGE GROUP'));
+  Array.prototype.push.apply(sections, buildMusicByDemographic_(data, colIdx, 'Age Range', 'AGE GROUP'));
 
   sections.push(['']);
 
@@ -2696,7 +2688,7 @@ function buildMusicInterestsReport() {
 
   // Music by Gender
 
-  sections.push(...buildMusicByDemographic_(data, colIdx, 'Self-Identified Gender', 'GENDER'));
+  Array.prototype.push.apply(sections, buildMusicByDemographic_(data, colIdx, 'Self-Identified Gender', 'GENDER'));
 
   sections.push(['']);
 
@@ -2704,7 +2696,7 @@ function buildMusicInterestsReport() {
 
   // Song Requests
 
-  sections.push(...buildSongRequestsSummary_(data, colIdx));
+  Array.prototype.push.apply(sections, buildSongRequestsSummary_(data, colIdx));
 
 
 
@@ -2718,21 +2710,21 @@ function buildMusicInterestsReport() {
 
 function buildMusicPreferences_(data, colIdx) {
 
-  const col = colIdx['Music Preference'];
+  var col = colIdx['Music Preference'];
 
   if (col === undefined) return [['MUSIC PREFERENCE DISTRIBUTION'], ['Column not found']];
 
 
 
-  const counts = {};
+  var counts = {};
 
-  let total = 0;
+  var total = 0;
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][col] || '').trim();
+    var value = String(data[i][col] || '').trim();
 
     if (!value) continue;
 
@@ -2744,15 +2736,15 @@ function buildMusicPreferences_(data, colIdx) {
 
 
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
-  const rows = [['MUSIC PREFERENCE DISTRIBUTION'], ['Genre', 'Count', 'Percentage']];
+  var rows = [['MUSIC PREFERENCE DISTRIBUTION'], ['Genre', 'Count', 'Percentage']];
 
 
 
   sorted.forEach(([genre, count]) => {
 
-    rows.push([genre, count, `${((count / total) * 100).toFixed(1)}%`]);
+    rows.push([genre, count, ((count / total) * 100).toFixed(1) + '%']);
 
   });
 
@@ -2768,17 +2760,17 @@ function buildMusicPreferences_(data, colIdx) {
 
 function buildTopArtists_(data, colIdx, limit) {
 
-  const col = colIdx['Current Favorite Artist'];
+  var col = colIdx['Current Favorite Artist'];
 
-  if (col === undefined) return [[`TOP ${limit} FAVORITE ARTISTS`], ['Column not found']];
+  if (col === undefined) return [['TOP ' + limit + ' FAVORITE ARTISTS'], ['Column not found']];
 
 
 
-  const counts = {};
+  var counts = {};
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][col] || '').trim();
+    var value = String(data[i][col] || '').trim();
 
     if (!value) continue;
 
@@ -2788,9 +2780,9 @@ function buildTopArtists_(data, colIdx, limit) {
 
 
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
 
-  const rows = [[`TOP ${limit} FAVORITE ARTISTS`], ['Rank', 'Artist', 'Mentions']];
+  var rows = [['TOP ' + limit + ' FAVORITE ARTISTS'], ['Rank', 'Artist', 'Mentions']];
 
 
 
@@ -2810,21 +2802,21 @@ function buildTopArtists_(data, colIdx, limit) {
 
 function buildTopInterests_(data, colIdx) {
 
-  const col = colIdx['Your General Interests (Choose 3)'];
+  var col = colIdx['Your General Interests (Choose 3)'];
 
   if (col === undefined) return [['TOP INTERESTS'], ['Column not found']];
 
 
 
-  const counts = {};
+  var counts = {};
 
-  let totalResponses = 0;
+  var totalResponses = 0;
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][col] || '').trim();
+    var value = String(data[i][col] || '').trim();
 
     if (!value) continue;
 
@@ -2832,7 +2824,7 @@ function buildTopInterests_(data, colIdx) {
 
 
 
-    const interests = value.split(',').map(s => s.trim()).filter(s => s);
+    var interests = value.split(',').map(s => s.trim()).filter(s => s);
 
     interests.forEach(interest => {
 
@@ -2844,15 +2836,15 @@ function buildTopInterests_(data, colIdx) {
 
 
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
-  const rows = [['TOP INTERESTS'], ['Interest', 'Count', '% of Guests']];
+  var rows = [['TOP INTERESTS'], ['Interest', 'Count', '% of Guests']];
 
 
 
   sorted.forEach(([interest, count]) => {
 
-    rows.push([interest, count, `${((count / totalResponses) * 100).toFixed(1)}%`]);
+    rows.push([interest, count, ((count / totalResponses) * 100).toFixed(1) + '%']);
 
   });
 
@@ -2866,27 +2858,27 @@ function buildTopInterests_(data, colIdx) {
 
 function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
 
-  const musicCol = colIdx['Music Preference'];
+  var musicCol = colIdx['Music Preference'];
 
-  const demoColIdx = colIdx[demoCol];
+  var demoColIdx = colIdx[demoCol];
 
   
 
   if (musicCol === undefined || demoColIdx === undefined) {
 
-    return [[`MUSIC PREFERENCE BY ${demoLabel}`], ['Required columns not found']];
+    return [['MUSIC PREFERENCE BY ' + demoLabel], ['Required columns not found']];
 
   }
 
 
 
-  const crosstab = {};
+  var crosstab = {};
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const demo = String(data[i][demoColIdx] || '').trim();
+    var demo = String(data[i][demoColIdx] || '').trim();
 
-    const music = String(data[i][musicCol] || '').trim();
+    var music = String(data[i][musicCol] || '').trim();
 
     if (!demo || !music) continue;
 
@@ -2900,7 +2892,7 @@ function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
 
 
 
-  const allGenres = new Set();
+  var allGenres = new Set();
 
   Object.values(crosstab).forEach(musicCounts => {
 
@@ -2908,25 +2900,27 @@ function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
 
   });
 
-  const genres = Array.from(allGenres).sort();
+  var genres = [];
+  allGenres.forEach(function(val) { genres.push(val); });
+  genres.sort();
 
-  const demos = Object.keys(crosstab).sort();
+  var demos = Object.keys(crosstab).sort();
 
 
 
-  const rows = [[`MUSIC PREFERENCE BY ${demoLabel}`], [demoCol, ...genres, 'Total']];
+  var rows = [['MUSIC PREFERENCE BY ' + demoLabel], [demoCol].concat(genres).concat(['Total'])];
 
 
 
   demos.forEach(demo => {
 
-    const row = [demo];
+    var row = [demo];
 
-    let rowTotal = 0;
+    var rowTotal = 0;
 
     genres.forEach(genre => {
 
-      const count = crosstab[demo][genre] || 0;
+      var count = crosstab[demo][genre] || 0;
 
       row.push(count);
 
@@ -2950,21 +2944,21 @@ function buildMusicByDemographic_(data, colIdx, demoCol, demoLabel) {
 
 function buildSongRequestsSummary_(data, colIdx) {
 
-  const col = colIdx['Name one song you want to hear at the party.'];
+  var col = colIdx['Name one song you want to hear at the party.'];
 
   if (col === undefined) return [['SONG REQUESTS SUMMARY'], ['Column not found']];
 
 
 
-  let totalResponses = 0, withSong = 0, withoutSong = 0;
+  var totalResponses = 0, withSong = 0, withoutSong = 0;
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
     totalResponses++;
 
-    const value = String(data[i][col] || '').trim();
+    var value = String(data[i][col] || '').trim();
 
     if (value) withSong++; else withoutSong++;
 
@@ -2972,9 +2966,9 @@ function buildSongRequestsSummary_(data, colIdx) {
 
 
 
-  const withPct = ((withSong / totalResponses) * 100).toFixed(1);
+  var withPct = ((withSong / totalResponses) * 100).toFixed(1);
 
-  const withoutPct = ((withoutSong / totalResponses) * 100).toFixed(1);
+  var withoutPct = ((withoutSong / totalResponses) * 100).toFixed(1);
 
 
 
@@ -2984,9 +2978,9 @@ function buildSongRequestsSummary_(data, colIdx) {
 
     ['Category', 'Count', 'Percentage'],
 
-    ['Provided Song Request', withSong, `${withPct}%`],
+    ['Provided Song Request', withSong, withPct + '%'],
 
-    ['No Song Request', withoutSong, `${withoutPct}%`],
+    ['No Song Request', withoutSong, withoutPct + '%'],
 
     ['Total Responses', totalResponses, '100.0%']
 
@@ -3014,21 +3008,21 @@ function buildSongRequestsSummary_(data, colIdx) {
 
 function buildHostRelationshipReport() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
 
   
 
   if (!cleanSheet) {
 
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
 
   }
 
 
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
 
   if (data.length < 2) {
 
@@ -3040,13 +3034,13 @@ function buildHostRelationshipReport() {
 
 
 
-  const header = data[0];
+  var header = data[0];
 
-  const colIdx = getColumnMap_(header);
+  var colIdx = getColumnMap_(header);
 
 
 
-  const sections = [];
+  var sections = [];
 
 
 
@@ -3058,7 +3052,7 @@ function buildHostRelationshipReport() {
 
   // Overview
 
-  sections.push(...buildHostOverview_(data, colIdx));
+  Array.prototype.push.apply(sections, buildHostOverview_(data, colIdx));
 
   sections.push(['']);
 
@@ -3066,7 +3060,7 @@ function buildHostRelationshipReport() {
 
   // Duration Distribution
 
-  sections.push(...buildHostDuration_(data, colIdx));
+  Array.prototype.push.apply(sections, buildHostDuration_(data, colIdx));
 
   sections.push(['']);
 
@@ -3074,7 +3068,7 @@ function buildHostRelationshipReport() {
 
   // Which Host Known
 
-  sections.push(...buildWhichHost_(data, colIdx));
+  Array.prototype.push.apply(sections, buildWhichHost_(data, colIdx));
 
   sections.push(['']);
 
@@ -3082,7 +3076,7 @@ function buildHostRelationshipReport() {
 
   // Closeness Scores
 
-  sections.push(...buildClosenessScores_(data, colIdx));
+  Array.prototype.push.apply(sections, buildClosenessScores_(data, colIdx));
 
   sections.push(['']);
 
@@ -3090,7 +3084,7 @@ function buildHostRelationshipReport() {
 
   // Closeness by Host
 
-  sections.push(...buildClosenessbyHost_(data, colIdx));
+  Array.prototype.push.apply(sections, buildClosenessbyHost_(data, colIdx));
 
 
 
@@ -3104,19 +3098,19 @@ function buildHostRelationshipReport() {
 
 function buildHostOverview_(data, colIdx) {
 
-  const col = colIdx['Do you know the Host(s)?'];
+  var col = colIdx['Do you know the Host(s)?'];
 
   if (col === undefined) return [['OVERVIEW'], ['Column not found']];
 
 
 
-  let total = data.length - 1, knowHosts = 0, unknownGuests = 0;
+  var total = data.length - 1, knowHosts = 0, unknownGuests = 0;
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][col] || '').trim().toLowerCase();
+    var value = String(data[i][col] || '').trim().toLowerCase();
 
     if (value.includes('yes') || value.includes('—')) knowHosts++;
 
@@ -3134,9 +3128,9 @@ function buildHostOverview_(data, colIdx) {
 
     ['Total Guests', total, '100.0%'],
 
-    ['Know Host(s)', knowHosts, `${((knowHosts / total) * 100).toFixed(1)}%`],
+    ['Know Host(s)', knowHosts, ((knowHosts / total) * 100).toFixed(1) + '%'],
 
-    ['Unknown Guests', unknownGuests, `${((unknownGuests / total) * 100).toFixed(1)}%`]
+    ['Unknown Guests', unknownGuests, ((unknownGuests / total) * 100).toFixed(1) + '%']
 
   ];
 
@@ -3146,21 +3140,21 @@ function buildHostOverview_(data, colIdx) {
 
 function buildHostDuration_(data, colIdx) {
 
-  const col = colIdx['Do you know the Host(s)?'];
+  var col = colIdx['Do you know the Host(s)?'];
 
   if (col === undefined) return [['FRIENDSHIP DURATION'], ['Column not found']];
 
 
 
-  const counts = {};
+  var counts = {};
 
-  let total = 0;
+  var total = 0;
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][col] || '').trim();
+    var value = String(data[i][col] || '').trim();
 
     if (!value) continue;
 
@@ -3172,13 +3166,13 @@ function buildHostDuration_(data, colIdx) {
 
 
 
-  const order = ['No', 'Yes — 3–12 months', 'Yes — 1–3 years', 'Yes — 3–5 years', 'Yes — 5–10 years', 'Yes — more than 10 years'];
+  var order = ['No', 'Yes — 3–12 months', 'Yes — 1–3 years', 'Yes — 3–5 years', 'Yes — 5–10 years', 'Yes — more than 10 years'];
 
-  const sorted = Object.keys(counts).sort((a, b) => {
+  var sorted = Object.keys(counts).sort((a, b) => {
 
-    const idxA = order.indexOf(a);
+    var idxA = order.indexOf(a);
 
-    const idxB = order.indexOf(b);
+    var idxB = order.indexOf(b);
 
     if (idxA === -1 && idxB === -1) return a.localeCompare(b);
 
@@ -3192,15 +3186,15 @@ function buildHostDuration_(data, colIdx) {
 
 
 
-  const rows = [['FRIENDSHIP DURATION DISTRIBUTION'], ['Duration', 'Count', 'Percentage']];
+  var rows = [['FRIENDSHIP DURATION DISTRIBUTION'], ['Duration', 'Count', 'Percentage']];
 
 
 
   sorted.forEach(duration => {
 
-    const count = counts[duration];
+    var count = counts[duration];
 
-    rows.push([duration, count, `${((count / total) * 100).toFixed(1)}%`]);
+    rows.push([duration, count, ((count / total) * 100).toFixed(1) + '%']);
 
   });
 
@@ -3216,21 +3210,21 @@ function buildHostDuration_(data, colIdx) {
 
 function buildWhichHost_(data, colIdx) {
 
-  const col = colIdx['Which host have you known the longest?'];
+  var col = colIdx['Which host have you known the longest?'];
 
   if (col === undefined) return [['WHICH HOST KNOWN LONGEST'], ['Column not found']];
 
 
 
-  const counts = {};
+  var counts = {};
 
-  let total = 0;
+  var total = 0;
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][col] || '').trim();
+    var value = String(data[i][col] || '').trim();
 
     if (!value) continue;
 
@@ -3242,15 +3236,15 @@ function buildWhichHost_(data, colIdx) {
 
 
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  var sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
-  const rows = [['WHICH HOST KNOWN LONGEST'], ['Host', 'Count', 'Percentage']];
+  var rows = [['WHICH HOST KNOWN LONGEST'], ['Host', 'Count', 'Percentage']];
 
 
 
   sorted.forEach(([host, count]) => {
 
-    rows.push([host, count, `${((count / total) * 100).toFixed(1)}%`]);
+    rows.push([host, count, ((count / total) * 100).toFixed(1) + '%']);
 
   });
 
@@ -3266,25 +3260,25 @@ function buildWhichHost_(data, colIdx) {
 
 function buildClosenessScores_(data, colIdx) {
 
-  const col = colIdx['If yes, how well do you know them?'];
+  var col = colIdx['If yes, how well do you know them?'];
 
   if (col === undefined) return [['CLOSENESS SCORE DISTRIBUTION'], ['Column not found']];
 
 
 
-  const counts = {};
+  var counts = {};
 
-  let total = 0, sum = 0;
+  var total = 0, sum = 0;
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = data[i][col];
+    var value = data[i][col];
 
     if (value === null || value === undefined || value === '') continue;
 
-    const score = Number(value);
+    var score = Number(value);
 
     if (!isFinite(score)) continue;
 
@@ -3300,13 +3294,13 @@ function buildClosenessScores_(data, colIdx) {
 
 
 
-  const avg = total > 0 ? (sum / total).toFixed(2) : 'N/A';
+  var avg = total > 0 ? (sum / total).toFixed(2) : 'N/A';
 
-  const sorted = Object.keys(counts).sort((a, b) => Number(b) - Number(a));
+  var sorted = Object.keys(counts).sort((a, b) => Number(b) - Number(a));
 
 
 
-  const rows = [
+  var rows = [
 
     ['CLOSENESS SCORE DISTRIBUTION (1=Acquaintance, 5=Close Friend)'],
 
@@ -3318,9 +3312,9 @@ function buildClosenessScores_(data, colIdx) {
 
   sorted.forEach(score => {
 
-    const count = counts[score];
+    var count = counts[score];
 
-    rows.push([score, count, `${((count / total) * 100).toFixed(1)}%`]);
+    rows.push([score, count, ((count / total) * 100).toFixed(1) + '%']);
 
   });
 
@@ -3338,9 +3332,9 @@ function buildClosenessScores_(data, colIdx) {
 
 function buildClosenessbyHost_(data, colIdx) {
 
-  const hostCol = colIdx['Which host have you known the longest?'];
+  var hostCol = colIdx['Which host have you known the longest?'];
 
-  const scoreCol = colIdx['If yes, how well do you know them?'];
+  var scoreCol = colIdx['If yes, how well do you know them?'];
 
   
 
@@ -3352,21 +3346,21 @@ function buildClosenessbyHost_(data, colIdx) {
 
 
 
-  const hostScores = {};
+  var hostScores = {};
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const host = String(data[i][hostCol] || '').trim();
+    var host = String(data[i][hostCol] || '').trim();
 
-    const score = data[i][scoreCol];
+    var score = data[i][scoreCol];
 
     
 
     if (!host || score === null || score === undefined || score === '') continue;
 
-    const scoreNum = Number(score);
+    var scoreNum = Number(score);
 
     if (!isFinite(scoreNum)) continue;
 
@@ -3382,13 +3376,13 @@ function buildClosenessbyHost_(data, colIdx) {
 
 
 
-  const rows = [['AVERAGE CLOSENESS BY HOST'], ['Host', 'Count', 'Average Score']];
+  var rows = [['AVERAGE CLOSENESS BY HOST'], ['Host', 'Count', 'Average Score']];
 
 
 
   Object.entries(hostScores).forEach(([host, data]) => {
 
-    const avg = (data.sum / data.count).toFixed(2);
+    var avg = (data.sum / data.count).toFixed(2);
 
     rows.push([host, data.count, avg]);
 
@@ -3420,21 +3414,21 @@ function buildClosenessbyHost_(data, colIdx) {
 
 function buildAttendeeAnalysis() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
 
   
 
   if (!cleanSheet) {
 
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
 
   }
 
 
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
 
   if (data.length < 2) {
 
@@ -3446,13 +3440,13 @@ function buildAttendeeAnalysis() {
 
 
 
-  const header = data[0];
+  var header = data[0];
 
-  const colIdx = getColumnMap_(header);
+  var colIdx = getColumnMap_(header);
 
 
 
-  const sections = [];
+  var sections = [];
 
 
 
@@ -3464,7 +3458,7 @@ function buildAttendeeAnalysis() {
 
   // Compare demographics
 
-  const compareFields = [
+  var compareFields = [
 
     ['Age Range', 'AGE RANGE'],
 
@@ -3480,7 +3474,7 @@ function buildAttendeeAnalysis() {
 
   compareFields.forEach(([colName, label]) => {
 
-    sections.push(...buildAttendeeComparison_(data, colIdx, colName, label));
+    Array.prototype.push.apply(sections, buildAttendeeComparison_(data, colIdx, colName, label));
 
     sections.push(['']);
 
@@ -3498,31 +3492,31 @@ function buildAttendeeAnalysis() {
 
 function buildAttendeeComparison_(data, colIdx, colName, label) {
 
-  const dataCol = colIdx[colName];
+  var dataCol = colIdx[colName];
 
-  const checkedInCol = colIdx['Checked-In at Event'];
+  var checkedInCol = colIdx['Checked-In at Event'];
 
   
 
   if (dataCol === undefined || checkedInCol === undefined) {
 
-    return [[`${label} COMPARISON`], ['Required columns not found']];
+    return [[label + ' COMPARISON'], ['Required columns not found']];
 
   }
 
 
 
-  const attendeeCounts = {};
+  var attendeeCounts = {};
 
-  const noShowCounts = {};
+  var noShowCounts = {};
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const value = String(data[i][dataCol] || '').trim();
+    var value = String(data[i][dataCol] || '').trim();
 
-    const isAttendee = String(data[i][checkedInCol] || '').trim().toUpperCase() === 'Y';
+    var isAttendee = String(data[i][checkedInCol] || '').trim().toUpperCase() === 'Y';
 
 
 
@@ -3544,21 +3538,23 @@ function buildAttendeeComparison_(data, colIdx, colName, label) {
 
 
 
-  const allValues = new Set([...Object.keys(attendeeCounts), ...Object.keys(noShowCounts)]);
+  var allValues = new Set(Object.keys(attendeeCounts).concat(Object.keys(noShowCounts)));
 
-  const sorted = Array.from(allValues).sort();
-
-
-
-  const attendeeTotal = Object.values(attendeeCounts).reduce((a, b) => a + b, 0);
-
-  const noShowTotal = Object.values(noShowCounts).reduce((a, b) => a + b, 0);
+  var sorted = [];
+  allValues.forEach(function(val) { sorted.push(val); });
+  sorted.sort();
 
 
 
-  const rows = [
+  var attendeeTotal = Object.values(attendeeCounts).reduce((a, b) => a + b, 0);
 
-    [`${label} COMPARISON: ATTENDEES VS NO-SHOWS`],
+  var noShowTotal = Object.values(noShowCounts).reduce((a, b) => a + b, 0);
+
+
+
+  var rows = [
+
+    [label + ' COMPARISON: ATTENDEES VS NO-SHOWS'],
 
     ['Category', 'Attendees', '% Attendees', 'No-Shows', '% No-Shows']
 
@@ -3568,17 +3564,17 @@ function buildAttendeeComparison_(data, colIdx, colName, label) {
 
   sorted.forEach(value => {
 
-    const attendeeCount = attendeeCounts[value] || 0;
+    var attendeeCount = attendeeCounts[value] || 0;
 
-    const noShowCount = noShowCounts[value] || 0;
+    var noShowCount = noShowCounts[value] || 0;
 
-    const attendeePct = attendeeTotal > 0 ? ((attendeeCount / attendeeTotal) * 100).toFixed(1) : '0.0';
+    var attendeePct = attendeeTotal > 0 ? ((attendeeCount / attendeeTotal) * 100).toFixed(1) : '0.0';
 
-    const noShowPct = noShowTotal > 0 ? ((noShowCount / noShowTotal) * 100).toFixed(1) : '0.0';
+    var noShowPct = noShowTotal > 0 ? ((noShowCount / noShowTotal) * 100).toFixed(1) : '0.0';
 
 
 
-    rows.push([value, attendeeCount, `${attendeePct}%`, noShowCount, `${noShowPct}%`]);
+    rows.push([value, attendeeCount, attendeePct + '%', noShowCount, noShowPct + '%']);
 
   });
 
@@ -3610,23 +3606,23 @@ function buildAttendeeComparison_(data, colIdx, colName, label) {
 
 function buildGuestProfiles() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
+  var cleanSheet = ss.getSheetByName(REPORTS_CLEAN_SHEET);
 
-  const simSheet = ss.getSheetByName('Guest_Similarity');
+  var simSheet = ss.getSheetByName('Guest_Similarity');
 
   
 
   if (!cleanSheet) {
 
-    throw new Error(`Sheet "${REPORTS_CLEAN_SHEET}" not found.`);
+    throw new Error('Sheet "' + REPORTS_CLEAN_SHEET + '" not found.');
 
   }
 
 
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
 
   if (data.length < 2) {
 
@@ -3638,15 +3634,15 @@ function buildGuestProfiles() {
 
 
 
-  const header = data[0];
+  var header = data[0];
 
-  const colIdx = getColumnMap_(header);
+  var colIdx = getColumnMap_(header);
 
 
 
   // Build profiles
 
-  const profiles = [
+  var profiles = [
 
     ['Screen Name', 'UID', 'Age', 'Gender', 'Orientation', 'Ethnicity', 'Education', 'Industry', 'Role', 
 
@@ -3658,17 +3654,17 @@ function buildGuestProfiles() {
 
 
 
-  for (let i = 1; i < data.length; i++) {
+  for (var i = 1; i < data.length; i++) {
 
-    const row = data[i];
+    var row = data[i];
 
     
 
     // Parse interests
 
-    const interestsStr = String(row[colIdx['Your General Interests (Choose 3)']] || '').trim();
+    var interestsStr = String(row[colIdx['Your General Interests (Choose 3)']] || '').trim();
 
-    const interests = interestsStr.split(',').slice(0, 3).map(s => s.trim()).join(', ');
+    var interests = interestsStr.split(',').slice(0, 3).map(s => s.trim()).join(', ');
 
 
 
@@ -3716,7 +3712,7 @@ function buildGuestProfiles() {
 
   
 
-  const sheet = ss.getSheetByName('Guest_Profiles');
+  var sheet = ss.getSheetByName('Guest_Profiles');
 
   if (sheet) {
 
@@ -3730,7 +3726,7 @@ function buildGuestProfiles() {
 
     sheet.setFrozenRows(1);
 
-    for (let col = 1; col <= profiles[0].length; col++) {
+    for (var col = 1; col <= profiles[0].length; col++) {
 
       sheet.autoResizeColumn(col);
 
@@ -3758,11 +3754,11 @@ function buildGuestProfiles() {
 
 function getColumnMap_(header) {
 
-  const map = {};
+  var map = {};
 
   header.forEach((col, idx) => {
 
-    const colName = String(col || '').trim();
+    var colName = String(col || '').trim();
 
     if (colName) map[colName] = idx;
 
@@ -3782,9 +3778,9 @@ function getColumnMap_(header) {
 
 function writeSheet_(sheetName, data) {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  let sheet = ss.getSheetByName(sheetName);
+  var sheet = ss.getSheetByName(sheetName);
 
   
 
@@ -3812,17 +3808,17 @@ function writeSheet_(sheetName, data) {
 
   // Find max columns
 
-  const maxCols = Math.max(...data.map(row => Array.isArray(row) ? row.length : 1));
+  var maxCols = Math.max.apply(null, data.map(row => Array.isArray(row) ? row.length : 1));
 
 
 
   // Pad rows to same length
 
-  const paddedRows = data.map(row => {
+  var paddedRows = data.map(row => {
 
     if (!Array.isArray(row)) return [row];
 
-    const padded = [...row];
+    var padded = row.slice();
 
     while (padded.length < maxCols) padded.push('');
 
@@ -3846,19 +3842,19 @@ function writeSheet_(sheetName, data) {
 
 function formatGenericReport_(sheetName) {
 
-  const sheet = SpreadsheetApp.getActive().getSheetByName(sheetName);
+  var sheet = SpreadsheetApp.getActive().getSheetByName(sheetName);
 
   if (!sheet) return;
 
 
 
-  const data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getValues();
 
-  const maxCols = data[0].length;
+  var maxCols = data[0].length;
 
 
 
-  for (let col = 1; col <= maxCols; col++) {
+  for (var col = 1; col <= maxCols; col++) {
 
     sheet.autoResizeColumn(col);
 
@@ -3866,9 +3862,9 @@ function formatGenericReport_(sheetName) {
 
 
 
-  for (let row = 1; row <= data.length; row++) {
+  for (var row = 1; row <= data.length; row++) {
 
-    const cellValue = String(data[row - 1][0] || '').trim();
+    var cellValue = String(data[row - 1][0] || '').trim();
 
     
 
@@ -3963,13 +3959,13 @@ function getCompatibilityMatches() {
 
   try {
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
     
 
     // Get the top similarity edges
 
-    const edgesSheet = ss.getSheetByName('Edges_Top_Sim');
+    var edgesSheet = ss.getSheetByName('Edges_Top_Sim');
 
     if (!edgesSheet) {
 
@@ -3981,19 +3977,19 @@ function getCompatibilityMatches() {
 
     
 
-    const edgesData = edgesSheet.getDataRange().getValues();
+    var edgesData = edgesSheet.getDataRange().getValues();
 
-    const edgesHeaders = edgesData[0];
+    var edgesHeaders = edgesData[0];
 
     
 
     // Find column indices in Edges_Top_Sim (lowercase: source, target, similarity)
 
-    const sourceCol = edgesHeaders.indexOf('source');
+    var sourceCol = edgesHeaders.indexOf('source');
 
-    const targetCol = edgesHeaders.indexOf('target');
+    var targetCol = edgesHeaders.indexOf('target');
 
-    const similarityCol = edgesHeaders.indexOf('similarity');
+    var similarityCol = edgesHeaders.indexOf('similarity');
 
     
 
@@ -4015,7 +4011,7 @@ function getCompatibilityMatches() {
 
     // Get Form Responses (Clean) for ALL guest details
 
-    const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+    var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
 
     if (!cleanSheet) {
 
@@ -4027,45 +4023,45 @@ function getCompatibilityMatches() {
 
     
 
-    const cleanData = cleanSheet.getDataRange().getValues();
+    var cleanData = cleanSheet.getDataRange().getValues();
 
-    const cleanHeaders = cleanData[0];
+    var cleanHeaders = cleanData[0];
 
     
 
     // Find columns in Form Responses (Clean) - based on Master_Desc
 
-    const screenNameCol = 21; // Column 22 (0-indexed = 21) "Screen Name"
+    var screenNameCol = 21; // Column 22 (0-indexed = 21) "Screen Name"
 
-    const photoUrlCol = 25;   // Column 26 (0-indexed = 25) "Photo URL"
+    var photoUrlCol = 25;   // Column 26 (0-indexed = 25) "Photo URL"
 
-    const musicCol = 15;      // Column 16 (0-indexed = 15) "Music Preference"
+    var musicCol = 15;      // Column 16 (0-indexed = 15) "Music Preference"
 
-    const zodiacCol = 2;      // Column 3 (0-indexed = 2) "Zodiac Sign"
+    var zodiacCol = 2;      // Column 3 (0-indexed = 2) "Zodiac Sign"
 
-    const interestsCol = 14;  // Column 15 (0-indexed = 14) "Your General Interests (Choose 3)"
+    var interestsCol = 14;  // Column 15 (0-indexed = 14) "Your General Interests (Choose 3)"
 
     
 
     // Build guest lookup map from Form Responses (Clean)
 
-    const guestMap = {};
+    var guestMap = {};
 
     
 
-    for (let i = 1; i < cleanData.length; i++) {
+    for (var i = 1; i < cleanData.length; i++) {
 
-      const row = cleanData[i];
+      var row = cleanData[i];
 
-      const screenName = row[screenNameCol];
+      var screenName = row[screenNameCol];
 
       
 
       if (screenName) {
 
-        const interestsStr = row[interestsCol] || '';
+        var interestsStr = row[interestsCol] || '';
 
-        const interests = interestsStr ? interestsStr.split(',').map(s => s.trim()) : [];
+        var interests = interestsStr ? interestsStr.split(',').map(s => s.trim()) : [];
 
         
 
@@ -4089,35 +4085,35 @@ function getCompatibilityMatches() {
 
     
 
-    const guestCount = Object.keys(guestMap).length;
+    var guestCount = Object.keys(guestMap).length;
 
-    const photosCount = Object.values(guestMap).filter(g => g.photoUrl).length;
+    var photosCount = Object.values(guestMap).filter(g => g.photoUrl).length;
 
     
 
-    Logger.log(`✅ Found ${guestCount} guests in Form Responses (Clean)`);
+    Logger.log('✅ Found ' + guestCount + ' guests in Form Responses (Clean)');
 
-    Logger.log(`✅ ${photosCount} guests have photos`);
+    Logger.log('✅ ' + photosCount + ' guests have photos');
 
     
 
     // Process matches from Edges_Top_Sim
 
-    const matches = [];
+    var matches = [];
 
-    let filteredOut = 0;
+    var filteredOut = 0;
 
     
 
-    for (let i = 1; i < edgesData.length; i++) {
+    for (var i = 1; i < edgesData.length; i++) {
 
-      const row = edgesData[i];
+      var row = edgesData[i];
 
-      const screenName1 = row[sourceCol];
+      var screenName1 = row[sourceCol];
 
-      const screenName2 = row[targetCol];
+      var screenName2 = row[targetCol];
 
-      const rawSimilarity = parseFloat(row[similarityCol]);
+      var rawSimilarity = parseFloat(row[similarityCol]);
 
       
 
@@ -4141,15 +4137,15 @@ function getCompatibilityMatches() {
 
       
 
-      const person1 = guestMap[screenName1];
+      var person1 = guestMap[screenName1];
 
-      const person2 = guestMap[screenName2];
+      var person2 = guestMap[screenName2];
 
       
 
       if (!person1 || !person2) {
 
-        Logger.log(`⚠️ Missing guest data for: ${screenName1} or ${screenName2}`);
+        Logger.log('⚠️ Missing guest data for: ' + screenName1 + ' or ' + screenName2);
 
         continue;
 
@@ -4159,17 +4155,17 @@ function getCompatibilityMatches() {
 
       // Find shared interests
 
-      const interests1 = person1.interests || [];
+      var interests1 = person1.interests || [];
 
-      const interests2 = person2.interests || [];
+      var interests2 = person2.interests || [];
 
-      const sharedInterests = interests1.filter(int => interests2.includes(int));
+      var sharedInterests = interests1.filter(int => interests2.includes(int));
 
       
 
       // Add common traits based on other attributes
 
-      const commonTraits = [...sharedInterests];
+      var commonTraits = sharedInterests.slice();
 
       
 
@@ -4181,7 +4177,7 @@ function getCompatibilityMatches() {
 
           person1.music === person2.music) {
 
-        commonTraits.push(`Music: ${person1.music}`);
+        commonTraits.push('Music: ' + person1.music);
 
       }
 
@@ -4195,7 +4191,7 @@ function getCompatibilityMatches() {
 
           person1.zodiac === person2.zodiac) {
 
-        commonTraits.push(`Zodiac: ${person1.zodiac}`);
+        commonTraits.push('Zodiac: ' + person1.zodiac);
 
       }
 
@@ -4203,7 +4199,7 @@ function getCompatibilityMatches() {
 
       // Add 10% for visual effect (but cap at 1.0)
 
-      const displaySimilarity = Math.min(rawSimilarity + 0.10, 1.0);
+      var displaySimilarity = Math.min(rawSimilarity + 0.10, 1.0);
 
       
 
@@ -4253,7 +4249,7 @@ function getCompatibilityMatches() {
 
     
 
-    Logger.log(`✅ Processed ${matches.length} matches (filtered out ${filteredOut} below 0.55)`);
+    Logger.log('✅ Processed ' + matches.length + ' matches (filtered out ' + filteredOut + ' below 0.55)');
 
     
 
@@ -4311,9 +4307,9 @@ function saveMatchesToSheet(matches) {
 
   try {
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    let matchSheet = ss.getSheetByName('Recommended_Matches');
+    var matchSheet = ss.getSheetByName('Recommended_Matches');
 
     
 
@@ -4347,7 +4343,7 @@ function saveMatchesToSheet(matches) {
 
     // Set column headers
 
-    const headers = [
+    var headers = [
 
       'Person 1',
 
@@ -4371,7 +4367,7 @@ function saveMatchesToSheet(matches) {
 
     // Add data
 
-    const rows = matches.map(match => [
+    var rows = matches.map(match => [
 
       match.person1.screenName,
 
@@ -4407,9 +4403,9 @@ function saveMatchesToSheet(matches) {
 
     // Add alternating row colors
 
-    for (let i = 0; i < rows.length; i++) {
+    for (var i = 0; i < rows.length; i++) {
 
-      const bgColor = i % 2 === 0 ? '#FFF8E1' : '#FFFFFF';
+      var bgColor = i % 2 === 0 ? '#FFF8E1' : '#FFFFFF';
 
       matchSheet.getRange(3 + i, 1, 1, headers.length).setBackground(bgColor);
 
@@ -4417,7 +4413,7 @@ function saveMatchesToSheet(matches) {
 
     
 
-    Logger.log(`✅ Saved ${matches.length} matches to Recommended_Matches sheet`);
+    Logger.log('✅ Saved ' + matches.length + ' matches to Recommended_Matches sheet');
 
     
 
@@ -4444,7 +4440,7 @@ function testGetCompatibilityMatches() {
 
   
 
-  const result = getCompatibilityMatches();
+  var result = getCompatibilityMatches();
 
   
 
@@ -4462,22 +4458,21 @@ function testGetCompatibilityMatches() {
     Logger.log('
 === TOP 5 MATCHES ===');
 
-    for (let i = 0; i < Math.min(5, result.matches.length); i++) {
+    for (var i = 0; i < Math.min(5, result.matches.length); i++) {
 
-      const match = result.matches[i];
+      var match = result.matches[i];
 
-      Logger.log(`
-${i + 1}. ${match.person1.screenName} ⭐ ${match.person2.screenName}`);
+      Logger.log('\n' + (i + 1) + '. ' + match.person1.screenName + ' ⭐ ' + match.person2.screenName);
 
-      Logger.log(`   💕 Compatibility: ${Math.round(match.similarity * 100)}%`);
+      Logger.log('   💕 Compatibility: ' + Math.round(match.similarity * 100) + '%');
 
-      Logger.log(`   🎵 Music: ${match.person1.music} / ${match.person2.music}`);
+      Logger.log('   🎵 Music: ' + match.person1.music + ' / ' + match.person2.music);
 
-      Logger.log(`   ⭐ Zodiac: ${match.person1.zodiac} / ${match.person2.zodiac}`);
+      Logger.log('   ⭐ Zodiac: ' + match.person1.zodiac + ' / ' + match.person2.zodiac);
 
-      Logger.log(`   ✨ Shared: ${match.sharedInterests.slice(0, 3).join(', ')}`);
+      Logger.log('   ✨ Shared: ' + match.sharedInterests.slice(0, 3).join(', '));
 
-      Logger.log(`   📸 Photos: ${match.person1.photoUrl ? '✅' : '❌'} / ${match.person2.photoUrl ? '✅' : '❌'}`);
+      Logger.log('   📸 Photos: ' + (match.person1.photoUrl ? '✅' : '❌') + ' / ' + (match.person2.photoUrl ? '✅' : '❌'));
 
     }
 
@@ -4542,13 +4537,13 @@ function getCompatibilityMatches() {
 
   try {
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
     
 
     // Get the top similarity edges
 
-    const edgesSheet = ss.getSheetByName('Edges_Top_Sim');
+    var edgesSheet = ss.getSheetByName('Edges_Top_Sim');
 
     if (!edgesSheet) {
 
@@ -4560,19 +4555,19 @@ function getCompatibilityMatches() {
 
     
 
-    const edgesData = edgesSheet.getDataRange().getValues();
+    var edgesData = edgesSheet.getDataRange().getValues();
 
-    const edgesHeaders = edgesData[0];
+    var edgesHeaders = edgesData[0];
 
     
 
     // Find column indices in Edges_Top_Sim (lowercase: source, target, similarity)
 
-    const sourceCol = edgesHeaders.indexOf('source');
+    var sourceCol = edgesHeaders.indexOf('source');
 
-    const targetCol = edgesHeaders.indexOf('target');
+    var targetCol = edgesHeaders.indexOf('target');
 
-    const similarityCol = edgesHeaders.indexOf('similarity');
+    var similarityCol = edgesHeaders.indexOf('similarity');
 
     
 
@@ -4594,7 +4589,7 @@ function getCompatibilityMatches() {
 
     // Get Form Responses (Clean) for ALL guest details
 
-    const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+    var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
 
     if (!cleanSheet) {
 
@@ -4606,45 +4601,45 @@ function getCompatibilityMatches() {
 
     
 
-    const cleanData = cleanSheet.getDataRange().getValues();
+    var cleanData = cleanSheet.getDataRange().getValues();
 
-    const cleanHeaders = cleanData[0];
+    var cleanHeaders = cleanData[0];
 
     
 
     // Find columns in Form Responses (Clean) - based on Master_Desc
 
-    const screenNameCol = 21; // Column 22 (0-indexed = 21) "Screen Name"
+    var screenNameCol = 21; // Column 22 (0-indexed = 21) "Screen Name"
 
-    const photoUrlCol = 25;   // Column 26 (0-indexed = 25) "Photo URL"
+    var photoUrlCol = 25;   // Column 26 (0-indexed = 25) "Photo URL"
 
-    const musicCol = 15;      // Column 16 (0-indexed = 15) "Music Preference"
+    var musicCol = 15;      // Column 16 (0-indexed = 15) "Music Preference"
 
-    const zodiacCol = 2;      // Column 3 (0-indexed = 2) "Zodiac Sign"
+    var zodiacCol = 2;      // Column 3 (0-indexed = 2) "Zodiac Sign"
 
-    const interestsCol = 14;  // Column 15 (0-indexed = 14) "Your General Interests (Choose 3)"
+    var interestsCol = 14;  // Column 15 (0-indexed = 14) "Your General Interests (Choose 3)"
 
     
 
     // Build guest lookup map from Form Responses (Clean)
 
-    const guestMap = {};
+    var guestMap = {};
 
     
 
-    for (let i = 1; i < cleanData.length; i++) {
+    for (var i = 1; i < cleanData.length; i++) {
 
-      const row = cleanData[i];
+      var row = cleanData[i];
 
-      const screenName = row[screenNameCol];
+      var screenName = row[screenNameCol];
 
       
 
       if (screenName) {
 
-        const interestsStr = row[interestsCol] || '';
+        var interestsStr = row[interestsCol] || '';
 
-        const interests = interestsStr ? interestsStr.split(',').map(s => s.trim()) : [];
+        var interests = interestsStr ? interestsStr.split(',').map(s => s.trim()) : [];
 
         
 
@@ -4668,35 +4663,35 @@ function getCompatibilityMatches() {
 
     
 
-    const guestCount = Object.keys(guestMap).length;
+    var guestCount = Object.keys(guestMap).length;
 
-    const photosCount = Object.values(guestMap).filter(g => g.photoUrl).length;
+    var photosCount = Object.values(guestMap).filter(g => g.photoUrl).length;
 
     
 
-    Logger.log(`✅ Found ${guestCount} guests in Form Responses (Clean)`);
+    Logger.log('✅ Found ' + guestCount + ' guests in Form Responses (Clean)');
 
-    Logger.log(`✅ ${photosCount} guests have photos`);
+    Logger.log('✅ ' + photosCount + ' guests have photos');
 
     
 
     // Process matches from Edges_Top_Sim
 
-    const matches = [];
+    var matches = [];
 
-    let filteredOut = 0;
+    var filteredOut = 0;
 
     
 
-    for (let i = 1; i < edgesData.length; i++) {
+    for (var i = 1; i < edgesData.length; i++) {
 
-      const row = edgesData[i];
+      var row = edgesData[i];
 
-      const screenName1 = row[sourceCol];
+      var screenName1 = row[sourceCol];
 
-      const screenName2 = row[targetCol];
+      var screenName2 = row[targetCol];
 
-      const rawSimilarity = parseFloat(row[similarityCol]);
+      var rawSimilarity = parseFloat(row[similarityCol]);
 
       
 
@@ -4720,15 +4715,15 @@ function getCompatibilityMatches() {
 
       
 
-      const person1 = guestMap[screenName1];
+      var person1 = guestMap[screenName1];
 
-      const person2 = guestMap[screenName2];
+      var person2 = guestMap[screenName2];
 
       
 
       if (!person1 || !person2) {
 
-        Logger.log(`⚠️ Missing guest data for: ${screenName1} or ${screenName2}`);
+        Logger.log('⚠️ Missing guest data for: ' + screenName1 + ' or ' + screenName2);
 
         continue;
 
@@ -4738,17 +4733,17 @@ function getCompatibilityMatches() {
 
       // Find shared interests
 
-      const interests1 = person1.interests || [];
+      var interests1 = person1.interests || [];
 
-      const interests2 = person2.interests || [];
+      var interests2 = person2.interests || [];
 
-      const sharedInterests = interests1.filter(int => interests2.includes(int));
+      var sharedInterests = interests1.filter(int => interests2.includes(int));
 
       
 
       // Add common traits based on other attributes
 
-      const commonTraits = [...sharedInterests];
+      var commonTraits = sharedInterests.slice();
 
       
 
@@ -4760,7 +4755,7 @@ function getCompatibilityMatches() {
 
           person1.music === person2.music) {
 
-        commonTraits.push(`Music: ${person1.music}`);
+        commonTraits.push('Music: ' + person1.music);
 
       }
 
@@ -4774,7 +4769,7 @@ function getCompatibilityMatches() {
 
           person1.zodiac === person2.zodiac) {
 
-        commonTraits.push(`Zodiac: ${person1.zodiac}`);
+        commonTraits.push('Zodiac: ' + person1.zodiac);
 
       }
 
@@ -4782,7 +4777,7 @@ function getCompatibilityMatches() {
 
       // Add 10% for visual effect (but cap at 1.0)
 
-      const displaySimilarity = Math.min(rawSimilarity + 0.10, 1.0);
+      var displaySimilarity = Math.min(rawSimilarity + 0.10, 1.0);
 
       
 
@@ -4832,7 +4827,7 @@ function getCompatibilityMatches() {
 
     
 
-    Logger.log(`✅ Processed ${matches.length} matches (filtered out ${filteredOut} below 0.55)`);
+    Logger.log('✅ Processed ' + matches.length + ' matches (filtered out ' + filteredOut + ' below 0.55)');
 
     
 
@@ -4890,9 +4885,9 @@ function saveMatchesToSheet(matches) {
 
   try {
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    let matchSheet = ss.getSheetByName('Recommended_Matches');
+    var matchSheet = ss.getSheetByName('Recommended_Matches');
 
     
 
@@ -4926,7 +4921,7 @@ function saveMatchesToSheet(matches) {
 
     // Set column headers
 
-    const headers = [
+    var headers = [
 
       'Person 1',
 
@@ -4950,7 +4945,7 @@ function saveMatchesToSheet(matches) {
 
     // Add data
 
-    const rows = matches.map(match => [
+    var rows = matches.map(match => [
 
       match.person1.screenName,
 
@@ -4986,9 +4981,9 @@ function saveMatchesToSheet(matches) {
 
     // Add alternating row colors
 
-    for (let i = 0; i < rows.length; i++) {
+    for (var i = 0; i < rows.length; i++) {
 
-      const bgColor = i % 2 === 0 ? '#FFF8E1' : '#FFFFFF';
+      var bgColor = i % 2 === 0 ? '#FFF8E1' : '#FFFFFF';
 
       matchSheet.getRange(3 + i, 1, 1, headers.length).setBackground(bgColor);
 
@@ -4996,7 +4991,7 @@ function saveMatchesToSheet(matches) {
 
     
 
-    Logger.log(`✅ Saved ${matches.length} matches to Recommended_Matches sheet`);
+    Logger.log('✅ Saved ' + matches.length + ' matches to Recommended_Matches sheet');
 
     
 
@@ -5023,7 +5018,7 @@ function testGetCompatibilityMatches() {
 
   
 
-  const result = getCompatibilityMatches();
+  var result = getCompatibilityMatches();
 
   
 
@@ -5041,22 +5036,21 @@ function testGetCompatibilityMatches() {
     Logger.log('
 === TOP 5 MATCHES ===');
 
-    for (let i = 0; i < Math.min(5, result.matches.length); i++) {
+    for (var i = 0; i < Math.min(5, result.matches.length); i++) {
 
-      const match = result.matches[i];
+      var match = result.matches[i];
 
-      Logger.log(`
-${i + 1}. ${match.person1.screenName} ⭐ ${match.person2.screenName}`);
+      Logger.log('\n' + (i + 1) + '. ' + match.person1.screenName + ' ⭐ ' + match.person2.screenName);
 
-      Logger.log(`   💕 Compatibility: ${Math.round(match.similarity * 100)}%`);
+      Logger.log('   💕 Compatibility: ' + Math.round(match.similarity * 100) + '%');
 
-      Logger.log(`   🎵 Music: ${match.person1.music} / ${match.person2.music}`);
+      Logger.log('   🎵 Music: ' + match.person1.music + ' / ' + match.person2.music);
 
-      Logger.log(`   ⭐ Zodiac: ${match.person1.zodiac} / ${match.person2.zodiac}`);
+      Logger.log('   ⭐ Zodiac: ' + match.person1.zodiac + ' / ' + match.person2.zodiac);
 
-      Logger.log(`   ✨ Shared: ${match.sharedInterests.slice(0, 3).join(', ')}`);
+      Logger.log('   ✨ Shared: ' + match.sharedInterests.slice(0, 3).join(', '));
 
-      Logger.log(`   📸 Photos: ${match.person1.photoUrl ? '✅' : '❌'} / ${match.person2.photoUrl ? '✅' : '❌'}`);
+      Logger.log('   📸 Photos: ' + (match.person1.photoUrl ? '✅' : '❌') + ' / ' + (match.person2.photoUrl ? '✅' : '❌'));
 
     }
 
@@ -5162,9 +5156,9 @@ execution log for full details!'
 
 function detectDataDisruptors() {
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+  var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
 
   
 
@@ -5190,11 +5184,11 @@ function detectDataDisruptors() {
 
   // Get data from clean sheet
 
-  const cleanData = cleanSheet.getDataRange().getValues();
+  var cleanData = cleanSheet.getDataRange().getValues();
 
-  const cleanHeaders = cleanData[0];
+  var cleanHeaders = cleanData[0];
 
-  const cleanRows = cleanData.slice(1);
+  var cleanRows = cleanData.slice(1);
 
   
 
@@ -5202,9 +5196,9 @@ function detectDataDisruptors() {
 
   // These are now at columns 22-23 (1-indexed) or 21-22 (0-indexed)
 
-  const screenNameCol = cleanHeaders.indexOf('Screen Name');
+  var screenNameCol = cleanHeaders.indexOf('Screen Name');
 
-  const uidCol = cleanHeaders.indexOf('UID');
+  var uidCol = cleanHeaders.indexOf('UID');
 
   
 
@@ -5232,7 +5226,7 @@ function detectDataDisruptors() {
 
   // Define all DDD flag columns
 
-  const dddHeaders = [
+  var dddHeaders = [
 
     'Screen Name',
 
@@ -5286,7 +5280,7 @@ function detectDataDisruptors() {
 
   // These remain the same regardless of event day columns
 
-  const COL = {
+  var COL = {
 
     TIMESTAMP: 0,
 
@@ -5340,17 +5334,17 @@ function detectDataDisruptors() {
 
   // Log for detailed reporting
 
-  const detectionLog = [];
+  var detectionLog = [];
 
-  let totalDisruptors = 0;
+  var totalDisruptors = 0;
 
   
 
   // Process each row and generate DDD flags
 
-  const dddResults = cleanRows.map((cleanRow, idx) => {
+  var dddResults = cleanRows.map((cleanRow, idx) => {
 
-    const rowNum = idx + 2; // Account for header row
+    var rowNum = idx + 2; // Account for header row
 
     
 
@@ -5358,21 +5352,21 @@ function detectDataDisruptors() {
 
     // NOTE: This uses the UPDATED screen names from the web app!
 
-    const screenName = cleanRow[screenNameCol] || 'Unknown';
+    var screenName = cleanRow[screenNameCol] || 'Unknown';
 
-    const uid = cleanRow[uidCol] || 'No UID';
+    var uid = cleanRow[uidCol] || 'No UID';
 
     
 
     // Analyze the clean row for violations
 
-    const flags = analyzeSuspiciousPatterns(cleanRow, rowNum, COL, detectionLog, screenName);
+    var flags = analyzeSuspiciousPatterns(cleanRow, rowNum, COL, detectionLog, screenName);
 
     
 
     // Combine Screen Name, UID, and all DDD flags
 
-    return [screenName, uid, ...flags];
+    return [screenName, uid].concat(flags);
 
   });
 
@@ -5380,7 +5374,7 @@ function detectDataDisruptors() {
 
   // Create or clear DDD sheet
 
-  let dddSheet = ss.getSheetByName('DDD');
+  var dddSheet = ss.getSheetByName('DDD');
 
   if (dddSheet) {
 
@@ -5426,7 +5420,7 @@ function detectDataDisruptors() {
 
   dddResults.forEach(row => {
 
-    const liarScore = row[row.length - 1]; // Last column
+    var liarScore = row[row.length - 1]; // Last column
 
     if (liarScore > 0) {
 
@@ -5440,21 +5434,15 @@ function detectDataDisruptors() {
 
   SpreadsheetApp.getUi().alert(
 
-    `🚨 Data Disruptor Detection Complete! 🚨
+    '🚨 Data Disruptor Detection Complete! 🚨\n\n' +
 
-` +
+    'Total Responses: ' + dddResults.length + '\n' +
 
-    `Total Responses: ${dddResults.length}
-` +
+    'Data Disruptors Found: ' + totalDisruptors + '\n' +
 
-    `Data Disruptors Found: ${totalDisruptors}
-` +
+    'Clean Rate: ' + ((dddResults.length - totalDisruptors) / dddResults.length * 100).toFixed(1) + '%\n\n' +
 
-    `Clean Rate: ${((dddResults.length - totalDisruptors) / dddResults.length * 100).toFixed(1)}%
-
-` +
-
-    `Check the "DDD" and "DDD Report" sheets for details.`
+    'Check the "DDD" and "DDD Report" sheets for details.'
 
   );
 
@@ -5470,9 +5458,9 @@ function detectDataDisruptors() {
 
 function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
-  const flags = [];
+  var flags = [];
 
-  let liarScore = 0;
+  var liarScore = 0;
 
   
 
@@ -5498,9 +5486,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 1: Birthday Format
 
-  const birthday = String(row[COL.BIRTHDAY] || '').trim();
+  var birthday = String(row[COL.BIRTHDAY] || '').trim();
 
-  const birthdayFlag = !birthday || !birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
+  var birthdayFlag = !birthday || !birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
 
   flags.push(birthdayFlag ? 1 : 0);
 
@@ -5508,7 +5496,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 1;
 
-    logViolation('Birthday Format', `Invalid birthday format: "${birthday}"`);
+    logViolation('Birthday Format', 'Invalid birthday format: "' + birthday + '"');
 
   }
 
@@ -5516,11 +5504,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 2: More Than 3 Interests
 
-  const interests = String(row[COL.INTERESTS] || '').trim();
+  var interests = String(row[COL.INTERESTS] || '').trim();
 
-  const interestCount = interests ? interests.split(',').length : 0;
+  var interestCount = interests ? interests.split(',').length : 0;
 
-  const tooManyInterests = interestCount > 3;
+  var tooManyInterests = interestCount > 3;
 
   flags.push(tooManyInterests ? 1 : 0);
 
@@ -5528,7 +5516,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 2;
 
-    logViolation('More Than 3 Interests', `Listed ${interestCount} interests (max 3 allowed)`);
+    logViolation('More Than 3 Interests', 'Listed ' + interestCount + ' interests (max 3 allowed)');
 
   }
 
@@ -5536,9 +5524,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 3: Unknown Guest
 
-  const knowHost = String(row[COL.KNOW_HOST] || '').toLowerCase().trim();
+  var knowHost = String(row[COL.KNOW_HOST] || '').toLowerCase().trim();
 
-  const unknownGuest = knowHost === 'no' || knowHost === '';
+  var unknownGuest = knowHost === 'no' || knowHost === '';
 
   flags.push(unknownGuest ? 1 : 0);
 
@@ -5554,9 +5542,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 4: No Song Request
 
-  const song = String(row[COL.SONG] || '').trim();
+  var song = String(row[COL.SONG] || '').trim();
 
-  const noSong = !song || song.toLowerCase() === 'none' || song.toLowerCase() === 'n/a';
+  var noSong = !song || song.toLowerCase() === 'none' || song.toLowerCase() === 'n/a';
 
   flags.push(noSong ? 1 : 0);
 
@@ -5572,7 +5560,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 5: Vague Song Request
 
-  const vagueSong = song && song.length > 0 && song.length < 10;
+  var vagueSong = song && song.length > 0 && song.length < 10;
 
   flags.push(vagueSong ? 1 : 0);
 
@@ -5580,7 +5568,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 1;
 
-    logViolation('Vague Song Request', `Very short song request: "${song}"`);
+    logViolation('Vague Song Request', 'Very short song request: "' + song + '"');
 
   }
 
@@ -5588,7 +5576,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 6: Multiple Songs Listed
 
-  const multipleSongs = song.includes(',') || song.includes('/') || song.includes('&') || song.includes(' or ');
+  var multipleSongs = song.includes(',') || song.includes('/') || song.includes('&') || song.includes(' or ');
 
   flags.push(multipleSongs ? 1 : 0);
 
@@ -5596,7 +5584,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 1;
 
-    logViolation('Multiple Songs Listed', `Listed multiple songs: "${song}"`);
+    logViolation('Multiple Songs Listed', 'Listed multiple songs: "' + song + '"');
 
   }
 
@@ -5604,9 +5592,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 7: No Artist Listed
 
-  const artist = String(row[COL.ARTIST] || '').trim();
+  var artist = String(row[COL.ARTIST] || '').trim();
 
-  const noArtist = !artist || artist.toLowerCase() === 'none' || artist.toLowerCase() === 'n/a';
+  var noArtist = !artist || artist.toLowerCase() === 'none' || artist.toLowerCase() === 'n/a';
 
   flags.push(noArtist ? 1 : 0);
 
@@ -5622,9 +5610,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 8: Barely Knows Host
 
-  const howWell = String(row[COL.HOW_WELL] || '').toLowerCase().trim();
+  var howWell = String(row[COL.HOW_WELL] || '').toLowerCase().trim();
 
-  const barelyKnows = howWell.includes('barely') || howWell.includes('not well') || howWell === 'acquaintance';
+  var barelyKnows = howWell.includes('barely') || howWell.includes('not well') || howWell === 'acquaintance';
 
   flags.push(barelyKnows ? 1 : 0);
 
@@ -5632,7 +5620,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 2;
 
-    logViolation('Barely Knows Host', `Barely knows host: "${howWell}"`);
+    logViolation('Barely Knows Host', 'Barely knows host: "' + howWell + '"');
 
   }
 
@@ -5640,7 +5628,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 9: Fresh Acquaintance
 
-  const freshAcquaintance = howWell.includes('just met') || howWell.includes('recently') || howWell.includes('new');
+  var freshAcquaintance = howWell.includes('just met') || howWell.includes('recently') || howWell.includes('new');
 
   flags.push(freshAcquaintance ? 1 : 0);
 
@@ -5648,7 +5636,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 3;
 
-    logViolation('Fresh Acquaintance', `Just met the host: "${howWell}"`);
+    logViolation('Fresh Acquaintance', 'Just met the host: "' + howWell + '"');
 
   }
 
@@ -5656,9 +5644,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 10: Host Ambiguity
 
-  const whichHost = String(row[COL.WHICH_HOST] || '').trim();
+  var whichHost = String(row[COL.WHICH_HOST] || '').trim();
 
-  const hostAmbiguous = !whichHost || whichHost.toLowerCase().includes('both') || whichHost.toLowerCase().includes('not sure');
+  var hostAmbiguous = !whichHost || whichHost.toLowerCase().includes('both') || whichHost.toLowerCase().includes('not sure');
 
   flags.push(hostAmbiguous ? 1 : 0);
 
@@ -5666,7 +5654,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 2;
 
-    logViolation('Host Ambiguity', `Unclear which host they know: "${whichHost}"`);
+    logViolation('Host Ambiguity', 'Unclear which host they know: "' + whichHost + '"');
 
   }
 
@@ -5674,17 +5662,17 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 11: Age/Birthday Mismatch
 
-  const ageRange = String(row[COL.AGE_RANGE] || '').trim();
+  var ageRange = String(row[COL.AGE_RANGE] || '').trim();
 
-  let ageMismatch = false;
+  var ageMismatch = false;
 
   if (birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
 
-    const birthYear = parseInt(birthday.split('/')[2]);
+    var birthYear = parseInt(birthday.split('/')[2]);
 
-    const currentYear = new Date().getFullYear();
+    var currentYear = new Date().getFullYear();
 
-    const calculatedAge = currentYear - birthYear;
+    var calculatedAge = currentYear - birthYear;
 
     
 
@@ -5704,7 +5692,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 3;
 
-    logViolation('Age/Birthday Mismatch', `Age range "${ageRange}" doesn't match birthday "${birthday}"`);
+    logViolation('Age/Birthday Mismatch', 'Age range "' + ageRange + '" doesn't match birthday "' + birthday + '"');
 
   }
 
@@ -5712,11 +5700,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 12: Education/Career Implausibility
 
-  const education = String(row[COL.EDUCATION] || '').toLowerCase();
+  var education = String(row[COL.EDUCATION] || '').toLowerCase();
 
-  const role = String(row[COL.ROLE] || '').toLowerCase();
+  var role = String(row[COL.ROLE] || '').toLowerCase();
 
-  const implausible = (education.includes('high school') && (role.includes('director') || role.includes('vp') || role.includes('ceo'))) ||
+  var implausible = (education.includes('high school') && (role.includes('director') || role.includes('vp') || role.includes('ceo'))) ||
 
                        (education.includes('phd') && ageRange === '18-24');
 
@@ -5726,7 +5714,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 4;
 
-    logViolation('Education/Career Implausibility', `Education "${education}" seems mismatched with role "${role}"`);
+    logViolation('Education/Career Implausibility', 'Education "' + education + '" seems mismatched with role "' + role + '"');
 
   }
 
@@ -5734,11 +5722,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 13: Meme/Joke Response
 
-  const worstTrait = String(row[COL.WORST_TRAIT] || '').toLowerCase();
+  var worstTrait = String(row[COL.WORST_TRAIT] || '').toLowerCase();
 
-  const memeKeywords = ['too awesome', 'too perfect', 'none', 'n/a', 'lol', 'lmao', 'haha', 'idk'];
+  var memeKeywords = ['too awesome', 'too perfect', 'none', 'n/a', 'lol', 'lmao', 'haha', 'idk'];
 
-  const isMeme = memeKeywords.some(keyword => worstTrait.includes(keyword));
+  var isMeme = memeKeywords.some(keyword => worstTrait.includes(keyword));
 
   flags.push(isMeme ? 1 : 0);
 
@@ -5746,7 +5734,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 2;
 
-    logViolation('Meme/Joke Response', `Joke response detected: "${worstTrait}"`);
+    logViolation('Meme/Joke Response', 'Joke response detected: "' + worstTrait + '"');
 
   }
 
@@ -5754,9 +5742,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 14: Music/Artist Genre Mismatch
 
-  const musicGenre = String(row[COL.MUSIC] || '').toLowerCase();
+  var musicGenre = String(row[COL.MUSIC] || '').toLowerCase();
 
-  const genreMismatch = (musicGenre.includes('classical') && artist.toLowerCase().includes('drake')) ||
+  var genreMismatch = (musicGenre.includes('classical') && artist.toLowerCase().includes('drake')) ||
 
                         (musicGenre.includes('country') && artist.toLowerCase().includes('metallica')) ||
 
@@ -5768,7 +5756,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 2;
 
-    logViolation('Music/Artist Genre Mismatch', `Genre "${musicGenre}" doesn't match artist "${artist}"`);
+    logViolation('Music/Artist Genre Mismatch', 'Genre "' + musicGenre + '" doesn't match artist "' + artist + '"');
 
   }
 
@@ -5776,9 +5764,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 15: Minimum Effort Detected
 
-  const totalChars = String(row.join('')).length;
+  var totalChars = String(row.join('')).length;
 
-  const minEffort = totalChars < 100 || interests.length < 5 || worstTrait.length < 5;
+  var minEffort = totalChars < 100 || interests.length < 5 || worstTrait.length < 5;
 
   flags.push(minEffort ? 1 : 0);
 
@@ -5786,7 +5774,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 2;
 
-    logViolation('Minimum Effort Detected', `Very short responses (${totalChars} chars total)`);
+    logViolation('Minimum Effort Detected', 'Very short responses (' + totalChars + ' chars total)');
 
   }
 
@@ -5794,7 +5782,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 16: Stranger Danger
 
-  const strangerDanger = unknownGuest && (barelyKnows || freshAcquaintance);
+  var strangerDanger = unknownGuest && (barelyKnows || freshAcquaintance);
 
   flags.push(strangerDanger ? 1 : 0);
 
@@ -5810,7 +5798,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 17: Relationship Contradiction
 
-  const contradiction = (knowHost === 'yes' && (howWell.includes('never') || howWell.includes("don't"))) ||
+  var contradiction = (knowHost === 'yes' && (howWell.includes('never') || howWell.includes("don't"))) ||
 
                         (knowHost === 'no' && howWell.includes('well') || howWell.includes('close'));
 
@@ -5820,7 +5808,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
     liarScore += 4;
 
-    logViolation('Relationship Contradiction', `"${knowHost}" contradicts "${howWell}"`);
+    logViolation('Relationship Contradiction', '"' + knowHost + '" contradicts "' + howWell + '"');
 
   }
 
@@ -5828,7 +5816,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 18: Special Snowflake Syndrome
 
-  const specialSnowflake = interests.toLowerCase().includes('unicorn') || 
+  var specialSnowflake = interests.toLowerCase().includes('unicorn') || 
 
                            interests.toLowerCase().includes('quantum') ||
 
@@ -5850,9 +5838,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 19: Suspiciously Generic
 
-  const genericKeywords = ['stuff', 'things', 'whatever', 'anything', 'nothing special'];
+  var genericKeywords = ['stuff', 'things', 'whatever', 'anything', 'nothing special'];
 
-  const tooGeneric = genericKeywords.some(keyword => 
+  var tooGeneric = genericKeywords.some(keyword => 
 
     interests.includes(keyword) || worstTrait.includes(keyword)
 
@@ -5900,7 +5888,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   // Format header
 
-  const headerRange = sheet.getRange(1, 1, 1, numCols);
+  var headerRange = sheet.getRange(1, 1, 1, numCols);
 
   headerRange.setFontWeight('bold');
 
@@ -5918,7 +5906,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   sheet.setColumnWidth(2, 100); // UID
 
-  for (let i = 3; i <= numCols - 1; i++) {
+  for (var i = 3; i <= numCols - 1; i++) {
 
     sheet.setColumnWidth(i, 80); // DDD flags
 
@@ -5932,15 +5920,15 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   if (numRows > 0) {
 
-    for (let col = 3; col <= numCols; col++) {
+    for (var col = 3; col <= numCols; col++) {
 
-      const range = sheet.getRange(2, col, numRows, 1);
+      var range = sheet.getRange(2, col, numRows, 1);
 
       
 
       // Highlight violations in red
 
-      const rule = SpreadsheetApp.newConditionalFormatRule()
+      var rule = SpreadsheetApp.newConditionalFormatRule()
 
         .whenNumberGreaterThan(0)
 
@@ -5952,7 +5940,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
       
 
-      const rules = sheet.getConditionalFormatRules();
+      var rules = sheet.getConditionalFormatRules();
 
       rules.push(rule);
 
@@ -5964,7 +5952,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     // Special formatting for Liar Score (last column)
 
-    const scoreRange = sheet.getRange(2, numCols, numRows, 1);
+    var scoreRange = sheet.getRange(2, numCols, numRows, 1);
 
     scoreRange.setFontWeight('bold');
 
@@ -5972,7 +5960,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     // Color code liar scores
 
-    const scoreRules = [
+    var scoreRules = [
 
       SpreadsheetApp.newConditionalFormatRule()
 
@@ -6010,7 +5998,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     
 
-    const allRules = sheet.getConditionalFormatRules();
+    var allRules = sheet.getConditionalFormatRules();
 
     sheet.setConditionalFormatRules(allRules.concat(scoreRules));
 
@@ -6046,7 +6034,7 @@ function createDDDReport(ss, log, totalResponses) {
 
   // Create or clear report sheet
 
-  let reportSheet = ss.getSheetByName('DDD Report');
+  var reportSheet = ss.getSheetByName('DDD Report');
 
   if (reportSheet) {
 
@@ -6062,7 +6050,7 @@ function createDDDReport(ss, log, totalResponses) {
 
   // Write report header - ensure every row has 4 columns
 
-  const reportData = [
+  var reportData = [
 
     ['🚨 DATA DISRUPTOR DETECTION REPORT 🚨', '', '', ''],
 
@@ -6174,9 +6162,9 @@ function createDDDReport(ss, log, totalResponses) {
 
   if (log.length > 0) {
 
-    const dataRange = reportSheet.getRange(8, 1, log.length, 4);
+    var dataRange = reportSheet.getRange(8, 1, log.length, 4);
 
-    const rule = SpreadsheetApp.newConditionalFormatRule()
+    var rule = SpreadsheetApp.newConditionalFormatRule()
 
       .whenFormulaSatisfied('=ISEVEN(ROW())')
 
@@ -6204,7 +6192,7 @@ function createDDDReport(ss, log, totalResponses) {
 
   // Create or clear report sheet
 
-  let reportSheet = ss.getSheetByName('DDD Report');
+  var reportSheet = ss.getSheetByName('DDD Report');
 
   if (reportSheet) {
 
@@ -6220,7 +6208,7 @@ function createDDDReport(ss, log, totalResponses) {
 
   // Write report header - ALL ROWS MUST HAVE 4 COLUMNS
 
-  const reportData = [
+  var reportData = [
 
     ['🚨 DATA DISRUPTOR DETECTION REPORT 🚨', '', '', ''],
 
@@ -6332,9 +6320,9 @@ function createDDDReport(ss, log, totalResponses) {
 
   if (log.length > 0) {
 
-    const dataRange = reportSheet.getRange(8, 1, log.length, 4);
+    var dataRange = reportSheet.getRange(8, 1, log.length, 4);
 
-    const rule = SpreadsheetApp.newConditionalFormatRule()
+    var rule = SpreadsheetApp.newConditionalFormatRule()
 
       .whenFormulaSatisfied('=ISEVEN(ROW())')
 
@@ -6405,9 +6393,9 @@ function createDDDReport(ss, log, totalResponses) {
 
 function detectDataDisruptors() {
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+  var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
 
   
 
@@ -6433,19 +6421,19 @@ function detectDataDisruptors() {
 
   // Get data from clean sheet
 
-  const cleanData = cleanSheet.getDataRange().getValues();
+  var cleanData = cleanSheet.getDataRange().getValues();
 
-  const cleanHeaders = cleanData[0];
+  var cleanHeaders = cleanData[0];
 
-  const cleanRows = cleanData.slice(1);
+  var cleanRows = cleanData.slice(1);
 
   
 
   // Find Screen Name and UID columns in Form Responses (Clean)
 
-  const screenNameCol = cleanHeaders.indexOf('Screen Name');
+  var screenNameCol = cleanHeaders.indexOf('Screen Name');
 
-  const uidCol = cleanHeaders.indexOf('UID');
+  var uidCol = cleanHeaders.indexOf('UID');
 
   
 
@@ -6473,7 +6461,7 @@ function detectDataDisruptors() {
 
   // Define all DDD flag columns
 
-  const dddHeaders = [
+  var dddHeaders = [
 
     'UID', // CHANGED: UID is the primary identifier (Col 1)
 
@@ -6525,7 +6513,7 @@ function detectDataDisruptors() {
 
   // Column indices (0-based) for Form Responses (Clean)
 
-  const COL = {
+  var COL = {
 
     TIMESTAMP: 0,
 
@@ -6577,29 +6565,29 @@ function detectDataDisruptors() {
 
   // Log for detailed reporting
 
-  const detectionLog = [];
+  var detectionLog = [];
 
-  let totalDisruptors = 0;
+  var totalDisruptors = 0;
 
   
 
   // Process each row and generate DDD flags
 
-  const dddResults = cleanRows.map((cleanRow, idx) => {
+  var dddResults = cleanRows.map((cleanRow, idx) => {
 
-    const rowNum = idx + 2; // Account for header row
+    var rowNum = idx + 2; // Account for header row
 
     
 
     // Extract UID from Form Responses (Clean)
 
-    const uid = cleanRow[uidCol] || 'No UID';
+    var uid = cleanRow[uidCol] || 'No UID';
 
     
 
     // Analyze the clean row for violations - PASSING UID INSTEAD OF SCREEN NAME
 
-    const flags = analyzeSuspiciousPatterns(cleanRow, rowNum, COL, detectionLog, uid);
+    var flags = analyzeSuspiciousPatterns(cleanRow, rowNum, COL, detectionLog, uid);
 
     
 
@@ -6615,7 +6603,7 @@ function detectDataDisruptors() {
 
   // Create or clear DDD sheet
 
-  let dddSheet = ss.getSheetByName('DDD');
+  var dddSheet = ss.getSheetByName('DDD');
 
   if (dddSheet) {
 
@@ -6665,7 +6653,7 @@ function detectDataDisruptors() {
 
   dddResults.forEach(row => {
 
-    const liarScore = row[row.length - 1]; // Last column
+    var liarScore = row[row.length - 1]; // Last column
 
     if (liarScore > 0) {
 
@@ -6679,21 +6667,15 @@ function detectDataDisruptors() {
 
   SpreadsheetApp.getUi().alert(
 
-    `🚨 Data Disruptor Detection Complete! 🚨
+    '🚨 Data Disruptor Detection Complete! 🚨\n\n' +
 
-` +
+    'Total Responses: ' + dddResults.length + '\n' +
 
-    `Total Responses: ${dddResults.length}
-` +
+    'Data Disruptors Found: ' + totalDisruptors + '\n' +
 
-    `Data Disruptors Found: ${totalDisruptors}
-` +
+    'Clean Rate: ' + ((dddResults.length - totalDisruptors) / dddResults.length * 100).toFixed(1) + '%\n\n' +
 
-    `Clean Rate: ${((dddResults.length - totalDisruptors) / dddResults.length * 100).toFixed(1)}%
-
-` +
-
-    `Check the "DDD" and "DDD Report" sheets for details.`
+    'Check the "DDD" and "DDD Report" sheets for details.'
 
   );
 
@@ -6713,9 +6695,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // The structure is 20 binary flags (index 0-19) + 1 Liar Score (index 20).
 
-  const flags = new Array(21).fill(0); 
+  var flags = new Array(21).fill(0); 
 
-  let liarScore = 0;
+  var liarScore = 0;
 
   
 
@@ -6741,9 +6723,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 1: Birthday Format (Index 0) ---
 
-  const birthday = String(row[COL.BIRTHDAY] || '').trim();
+  var birthday = String(row[COL.BIRTHDAY] || '').trim();
 
-  const birthdayFlag = !birthday || !birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
+  var birthdayFlag = !birthday || !birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
 
   flags[0] = birthdayFlag ? 1 : 0;
 
@@ -6751,7 +6733,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 1;
 
-    logViolation('Birthday Format', `Invalid birthday format: "${birthday}"`);
+    logViolation('Birthday Format', 'Invalid birthday format: "' + birthday + '"');
 
   }
 
@@ -6759,11 +6741,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 2: More Than 3 Interests (Index 1) ---
 
-  const interests = String(row[COL.INTERESTS] || '').trim();
+  var interests = String(row[COL.INTERESTS] || '').trim();
 
-  const interestCount = interests ? interests.split(/[;,]/).length : 0;
+  var interestCount = interests ? interests.split(/[;,]/).length : 0;
 
-  const tooManyInterests = interestCount > 3;
+  var tooManyInterests = interestCount > 3;
 
   flags[1] = tooManyInterests ? 1 : 0;
 
@@ -6771,7 +6753,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 2;
 
-    logViolation('More Than 3 Interests', `Listed ${interestCount} interests (max 3 allowed)`);
+    logViolation('More Than 3 Interests', 'Listed ' + interestCount + ' interests (max 3 allowed)');
 
   }
 
@@ -6779,9 +6761,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 3: Unknown Guest (Index 2) ---
 
-  const knowHost = String(row[COL.KNOW_HOST] || '').toLowerCase().trim();
+  var knowHost = String(row[COL.KNOW_HOST] || '').toLowerCase().trim();
 
-  const unknownGuest = knowHost === 'no' || knowHost === '';
+  var unknownGuest = knowHost === 'no' || knowHost === '';
 
   flags[2] = unknownGuest ? 1 : 0;
 
@@ -6797,9 +6779,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 4: No Song Request (Index 3) ---
 
-  const song = String(row[COL.SONG] || '').trim();
+  var song = String(row[COL.SONG] || '').trim();
 
-  const noSong = !song || song.toLowerCase() === 'none' || song.toLowerCase() === 'n/a';
+  var noSong = !song || song.toLowerCase() === 'none' || song.toLowerCase() === 'n/a';
 
   flags[3] = noSong ? 1 : 0;
 
@@ -6815,7 +6797,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 5: Vague Song Request (Index 4) ---
 
-  const vagueSong = song && song.length > 0 && song.length < 10;
+  var vagueSong = song && song.length > 0 && song.length < 10;
 
   flags[4] = vagueSong ? 1 : 0;
 
@@ -6823,7 +6805,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 1;
 
-    logViolation('Vague Song Request', `Very short song request: "${song}"`);
+    logViolation('Vague Song Request', 'Very short song request: "' + song + '"');
 
   }
 
@@ -6831,7 +6813,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 6: Multiple Songs Listed (Index 5) ---
 
-  const multipleSongs = song.includes(',') || song.includes('/') || song.includes('&') || song.includes(' or ');
+  var multipleSongs = song.includes(',') || song.includes('/') || song.includes('&') || song.includes(' or ');
 
   flags[5] = multipleSongs ? 1 : 0;
 
@@ -6839,7 +6821,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 1;
 
-    logViolation('Multiple Songs Listed', `Listed multiple songs: "${song}"`);
+    logViolation('Multiple Songs Listed', 'Listed multiple songs: "' + song + '"');
 
   }
 
@@ -6847,9 +6829,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 7: No Artist Listed (Index 6) ---
 
-  const artist = String(row[COL.ARTIST] || '').trim();
+  var artist = String(row[COL.ARTIST] || '').trim();
 
-  const noArtist = !artist || artist.toLowerCase() === 'none' || artist.toLowerCase() === 'n/a';
+  var noArtist = !artist || artist.toLowerCase() === 'none' || artist.toLowerCase() === 'n/a';
 
   flags[6] = noArtist ? 1 : 0;
 
@@ -6865,9 +6847,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 8: Barely Knows Host (Index 7) ---
 
-  const howWell = String(row[COL.HOW_WELL] || '').toLowerCase().trim();
+  var howWell = String(row[COL.HOW_WELL] || '').toLowerCase().trim();
 
-  const barelyKnows = howWell.includes('barely') || howWell.includes('not well') || howWell === 'acquaintance';
+  var barelyKnows = howWell.includes('barely') || howWell.includes('not well') || howWell === 'acquaintance';
 
   flags[7] = barelyKnows ? 1 : 0;
 
@@ -6875,7 +6857,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 2;
 
-    logViolation('Barely Knows Host', `Barely knows host: "${howWell}"`);
+    logViolation('Barely Knows Host', 'Barely knows host: "' + howWell + '"');
 
   }
 
@@ -6883,7 +6865,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 9: Fresh Acquaintance (Index 8) ---
 
-  const freshAcquaintance = howWell.includes('just met') || howWell.includes('recently') || howWell.includes('new');
+  var freshAcquaintance = howWell.includes('just met') || howWell.includes('recently') || howWell.includes('new');
 
   flags[8] = freshAcquaintance ? 1 : 0;
 
@@ -6891,7 +6873,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 3;
 
-    logViolation('Fresh Acquaintance', `Just met the host: "${howWell}"`);
+    logViolation('Fresh Acquaintance', 'Just met the host: "' + howWell + '"');
 
   }
 
@@ -6899,9 +6881,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 10: Host Ambiguity (Index 9) ---
 
-  const whichHost = String(row[COL.WHICH_HOST] || '').trim();
+  var whichHost = String(row[COL.WHICH_HOST] || '').trim();
 
-  const hostAmbiguous = !whichHost || whichHost.toLowerCase().includes('both') || whichHost.toLowerCase().includes('not sure');
+  var hostAmbiguous = !whichHost || whichHost.toLowerCase().includes('both') || whichHost.toLowerCase().includes('not sure');
 
   flags[9] = hostAmbiguous ? 1 : 0;
 
@@ -6909,7 +6891,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 2;
 
-    logViolation('Host Ambiguity', `Unclear which host they know: "${whichHost}"`);
+    logViolation('Host Ambiguity', 'Unclear which host they know: "' + whichHost + '"');
 
   }
 
@@ -6917,29 +6899,29 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 11: Age/Birthday Mismatch (Index 10) ---
 
-  const ageRange = String(row[COL.AGE_RANGE] || '').trim();
+  var ageRange = String(row[COL.AGE_RANGE] || '').trim();
 
-  let ageMismatch = false;
+  var ageMismatch = false;
 
   if (birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
 
-    const birthYear = parseInt(birthday.split('/')[2]);
+    var birthYear = parseInt(birthday.split('/')[2]);
 
-    const currentYear = new Date().getFullYear();
+    var currentYear = new Date().getFullYear();
 
-    const calculatedAge = currentYear - birthYear;
+    var calculatedAge = currentYear - birthYear;
 
     
 
     // Check if the calculated age falls outside the stated age range
 
-    const rangeMatch = ageRange.match(/(\d+)-(\d+)/);
+    var rangeMatch = ageRange.match(/(\d+)-(\d+)/);
 
     if (rangeMatch) {
 
-      const minAge = parseInt(rangeMatch[1]);
+      var minAge = parseInt(rangeMatch[1]);
 
-      const maxAge = parseInt(rangeMatch[2]);
+      var maxAge = parseInt(rangeMatch[2]);
 
       if (calculatedAge < minAge || calculatedAge > maxAge) ageMismatch = true;
 
@@ -6953,7 +6935,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 3;
 
-    logViolation('Age/Birthday Mismatch', `Age range "${ageRange}" doesn't match birthday "${birthday}"`);
+    logViolation('Age/Birthday Mismatch', 'Age range "' + ageRange + '" doesn't match birthday "' + birthday + '"');
 
   }
 
@@ -6961,11 +6943,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 12: Education/Career Implausibility (Index 11) ---
 
-  const education = String(row[COL.EDUCATION] || '').toLowerCase();
+  var education = String(row[COL.EDUCATION] || '').toLowerCase();
 
-  const role = String(row[COL.ROLE] || '').toLowerCase();
+  var role = String(row[COL.ROLE] || '').toLowerCase();
 
-  const implausible = (education.includes('high school') && (role.includes('director') || role.includes('vp') || role.includes('ceo'))) ||
+  var implausible = (education.includes('high school') && (role.includes('director') || role.includes('vp') || role.includes('ceo'))) ||
 
     (education.includes('phd') && ageRange.includes('18-24')) ||
 
@@ -6977,7 +6959,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 4;
 
-    logViolation('Education/Career Implausibility', `Education "${education}" seems mismatched with role "${role}"`);
+    logViolation('Education/Career Implausibility', 'Education "' + education + '" seems mismatched with role "' + role + '"');
 
   }
 
@@ -6985,11 +6967,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 13: Meme/Joke Response (Index 12) ---
 
-  const worstTrait = String(row[COL.WORST_TRAIT] || '').toLowerCase();
+  var worstTrait = String(row[COL.WORST_TRAIT] || '').toLowerCase();
 
-  const memeKeywords = ['too awesome', 'too perfect', 'none', 'n/a', 'lol', 'lmao', 'haha', 'idk'];
+  var memeKeywords = ['too awesome', 'too perfect', 'none', 'n/a', 'lol', 'lmao', 'haha', 'idk'];
 
-  const isMeme = memeKeywords.some(keyword => worstTrait.includes(keyword));
+  var isMeme = memeKeywords.some(keyword => worstTrait.includes(keyword));
 
   flags[12] = isMeme ? 1 : 0;
 
@@ -6997,7 +6979,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 2;
 
-    logViolation('Meme/Joke Response', `Joke response detected: "${worstTrait}"`);
+    logViolation('Meme/Joke Response', 'Joke response detected: "' + worstTrait + '"');
 
   }
 
@@ -7005,9 +6987,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 14: Music/Artist Genre Mismatch (Index 13) ---
 
-  const musicGenre = String(row[COL.MUSIC] || '').toLowerCase();
+  var musicGenre = String(row[COL.MUSIC] || '').toLowerCase();
 
-  const genreMismatch = (musicGenre.includes('classical') && artist.toLowerCase().includes('drake')) ||
+  var genreMismatch = (musicGenre.includes('classical') && artist.toLowerCase().includes('drake')) ||
 
     (musicGenre.includes('country') && artist.toLowerCase().includes('metallica')) ||
 
@@ -7021,7 +7003,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 2;
 
-    logViolation('Music/Artist Genre Mismatch', `Genre "${musicGenre}" doesn't match artist "${artist}"`);
+    logViolation('Music/Artist Genre Mismatch', 'Genre "' + musicGenre + '" doesn't match artist "' + artist + '"');
 
   }
 
@@ -7029,9 +7011,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 15: Minimum Effort Detected (Index 14) ---
 
-  const totalChars = String(row.slice(COL.AGE_RANGE, COL.SOCIAL_STANCE + 1).join('')).length; // Focus on core questions
+  var totalChars = String(row.slice(COL.AGE_RANGE, COL.SOCIAL_STANCE + 1).join('')).length; // Focus on core questions
 
-  const minEffort = totalChars < 150 || interests.length < 5 || worstTrait.length < 5; // Increased total char threshold
+  var minEffort = totalChars < 150 || interests.length < 5 || worstTrait.length < 5; // Increased total char threshold
 
   flags[14] = minEffort ? 1 : 0;
 
@@ -7039,7 +7021,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 2;
 
-    logViolation('Minimum Effort Detected', `Very short responses (${totalChars} chars total)`);
+    logViolation('Minimum Effort Detected', 'Very short responses (' + totalChars + ' chars total)');
 
   }
 
@@ -7047,7 +7029,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 16: Stranger Danger (Index 15) ---
 
-  const strangerDanger = unknownGuest && (barelyKnows || freshAcquaintance);
+  var strangerDanger = unknownGuest && (barelyKnows || freshAcquaintance);
 
   flags[15] = strangerDanger ? 1 : 0;
 
@@ -7063,7 +7045,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 17: Relationship Contradiction (Index 16) ---
 
-  const contradiction = (knowHost.includes('yes') && (howWell.includes('never') || howWell.includes("don't"))) ||
+  var contradiction = (knowHost.includes('yes') && (howWell.includes('never') || howWell.includes("don't"))) ||
 
     (knowHost.includes('no') && howWell.includes('well') || howWell.includes('close'));
 
@@ -7073,7 +7055,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     liarScore += 4;
 
-    logViolation('Relationship Contradiction', `"${knowHost}" contradicts "${howWell}"`);
+    logViolation('Relationship Contradiction', '"' + knowHost + '" contradicts "' + howWell + '"');
 
   }
 
@@ -7081,7 +7063,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 18: Special Snowflake Syndrome (Index 17) ---
 
-  const specialSnowflake = interests.toLowerCase().includes('unicorn') || 
+  var specialSnowflake = interests.toLowerCase().includes('unicorn') || 
 
     interests.toLowerCase().includes('quantum') ||
 
@@ -7103,9 +7085,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 19: Suspiciously Generic (Index 18) ---
 
-  const genericKeywords = ['stuff', 'things', 'whatever', 'anything', 'nothing special'];
+  var genericKeywords = ['stuff', 'things', 'whatever', 'anything', 'nothing special'];
 
-  const tooGeneric = genericKeywords.some(keyword => 
+  var tooGeneric = genericKeywords.some(keyword => 
 
     interests.includes(keyword) || worstTrait.includes(keyword) || song.includes(keyword)
 
@@ -7129,7 +7111,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
   // --- DDD 20: Too Many Violations Detected (Index 19) ---
 
-  const tooManyViolations = liarScore >= 5;
+  var tooManyViolations = liarScore >= 5;
 
   flags[19] = tooManyViolations ? 1 : 0;
 
@@ -7137,7 +7119,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, uid) {
 
     // Log this as a severe composite warning
 
-    logViolation('Too Many Violations Detected', `Composite score of ${liarScore} (5+ is high-risk)`);
+    logViolation('Too Many Violations Detected', 'Composite score of ' + liarScore + ' (5+ is high-risk)');
 
   }
 
@@ -7173,7 +7155,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   // Format header
 
-  const headerRange = sheet.getRange(1, 1, 1, numCols);
+  var headerRange = sheet.getRange(1, 1, 1, numCols);
 
   headerRange.setFontWeight('bold');
 
@@ -7191,7 +7173,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   // The new column (21) is before the Liar Score (22)
 
-  for (let i = 2; i <= numCols - 2; i++) { // DDD flags start at Col 2 and end before the last two columns
+  for (var i = 2; i <= numCols - 2; i++) { // DDD flags start at Col 2 and end before the last two columns
 
     sheet.setColumnWidth(i, 80); // DDD flags
 
@@ -7209,15 +7191,15 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     // Apply conditional formatting to all flag columns (Col 2 up to numCols - 1, which is Liar Score)
 
-    for (let col = 2; col <= numCols - 1; col++) { 
+    for (var col = 2; col <= numCols - 1; col++) { 
 
-      const range = sheet.getRange(2, col, numRows, 1);
+      var range = sheet.getRange(2, col, numRows, 1);
 
       
 
       // Highlight violations in red
 
-      const rule = SpreadsheetApp.newConditionalFormatRule()
+      var rule = SpreadsheetApp.newConditionalFormatRule()
 
         .whenNumberGreaterThan(0)
 
@@ -7229,7 +7211,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
       
 
-      const rules = sheet.getConditionalFormatRules();
+      var rules = sheet.getConditionalFormatRules();
 
       rules.push(rule);
 
@@ -7241,7 +7223,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     // Special formatting for Liar Score (last column)
 
-    const scoreRange = sheet.getRange(2, numCols, numRows, 1);
+    var scoreRange = sheet.getRange(2, numCols, numRows, 1);
 
     scoreRange.setFontWeight('bold');
 
@@ -7249,7 +7231,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     // Color code liar scores
 
-    const scoreRules = [
+    var scoreRules = [
 
       SpreadsheetApp.newConditionalFormatRule()
 
@@ -7287,7 +7269,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     
 
-    const allRules = sheet.getConditionalFormatRules();
+    var allRules = sheet.getConditionalFormatRules();
 
     sheet.setConditionalFormatRules(allRules.concat(scoreRules));
 
@@ -7313,7 +7295,7 @@ function createDDDReport(ss, log, totalResponses) {
 
   // Create or clear report sheet
 
-  let reportSheet = ss.getSheetByName('DDD Report');
+  var reportSheet = ss.getSheetByName('DDD Report');
 
   if (reportSheet) {
 
@@ -7329,7 +7311,7 @@ function createDDDReport(ss, log, totalResponses) {
 
   // Write report header - ALL ROWS MUST HAVE 4 COLUMNS
 
-  const reportData = [
+  var reportData = [
 
     ['🚨 DATA DISRUPTOR DETECTION REPORT 🚨', '', '', ''],
 
@@ -7441,9 +7423,9 @@ function createDDDReport(ss, log, totalResponses) {
 
   if (log.length > 0) {
 
-    const dataRange = reportSheet.getRange(8, 1, log.length, 4);
+    var dataRange = reportSheet.getRange(8, 1, log.length, 4);
 
-    const rule = SpreadsheetApp.newConditionalFormatRule()
+    var rule = SpreadsheetApp.newConditionalFormatRule()
 
       .whenFormulaSatisfied('=ISEVEN(ROW())')
 
@@ -7486,7 +7468,7 @@ function createDDDReport(ss, log, totalResponses) {
 
 // The ID of the target Google Drive folder (ID extracted from the URL).
 
-const TARGET_FOLDER_ID = '1iR4UQ1V8Iy4IIbqN5Ifzi6zUNt8bRueB'; 
+var TARGET_FOLDER_ID = '1iR4UQ1V8Iy4IIbqN5Ifzi6zUNt8bRueB'; 
 
 
 
@@ -7500,23 +7482,11 @@ const TARGET_FOLDER_ID = '1iR4UQ1V8Iy4IIbqN5Ifzi6zUNt8bRueB';
 
 /**
 
- * Creates a custom menu in the spreadsheet UI for admin tasks.
+ * Admin menu handled by mergeAnalyticsMenu() function
 
- * This runs automatically when the spreadsheet is opened.
+ * Called from main onOpen() in onOpen.gs
 
  */
-
-function onOpen() {
-
-  SpreadsheetApp.getUi()
-
-      .createMenu('Admin Tools')
-
-      .addItem('Export All Sheets as CSV', 'exportAllSheetsAsCsv')
-
-      .addToUi();
-
-}
 
 
 
@@ -7534,7 +7504,7 @@ function getExportFolder_() {
 
   try {
 
-    const folder = DriveApp.getFolderById(TARGET_FOLDER_ID);
+    var folder = DriveApp.getFolderById(TARGET_FOLDER_ID);
 
     Logger.log('Using fixed Drive folder: ' + folder.getName());
 
@@ -7574,21 +7544,21 @@ function getExportFolder_() {
 
 function exportAllSheetsAsCsv() {
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const sheets = ss.getSheets();
+  var sheets = ss.getSheets();
 
   
 
   // Use the updated function to get the fixed folder
 
-  const exportFolder = getExportFolder_(); 
+  var exportFolder = getExportFolder_(); 
 
   
 
-  let successCount = 0;
+  var successCount = 0;
 
-  let errorCount = 0;
+  var errorCount = 0;
 
   
 
@@ -7598,9 +7568,9 @@ function exportAllSheetsAsCsv() {
 
   sheets.forEach(sheet => {
 
-    const sheetName = sheet.getName();
+    var sheetName = sheet.getName();
 
-    const fileName = `${sheetName}.csv`;
+    var fileName = sheetName + '.csv';
 
     
 
@@ -7608,11 +7578,11 @@ function exportAllSheetsAsCsv() {
 
       // 1. Get sheet data and generate CSV content
 
-      const data = sheet.getDataRange().getValues();
+      var data = sheet.getDataRange().getValues();
 
       if (data.length === 0) {
 
-        Logger.log(`Skipping sheet "${sheetName}": No data.`);
+        Logger.log('Skipping sheet "' + sheetName + '": No data.');
 
         return;
 
@@ -7622,11 +7592,11 @@ function exportAllSheetsAsCsv() {
 
       // Manually escape quotes and join data for robust CSV format
 
-      const csvContent = data.map(row => 
+      var csvContent = data.map(row => 
 
         row.map(cell => {
 
-          let value = String(cell).replace(/"/g, '""');
+          var value = String(cell).replace(/"/g, '""');
 
           // Add newline handling to ensure content within quotes is preserved
 
@@ -7638,7 +7608,7 @@ function exportAllSheetsAsCsv() {
 
           }
 
-          return `"${value}"`;
+          return '"' + value + '"';
 
         }).join(',')
 
@@ -7649,13 +7619,13 @@ function exportAllSheetsAsCsv() {
 
       // 2. Create Blob
 
-      const blob = Utilities.newBlob(csvContent, MimeType.CSV, fileName);
+      var blob = Utilities.newBlob(csvContent, MimeType.CSV, fileName);
 
 
 
       // 3. Check for existing file
 
-      const files = exportFolder.getFilesByName(fileName);
+      var files = exportFolder.getFilesByName(fileName);
 
       
 
@@ -7663,7 +7633,7 @@ function exportAllSheetsAsCsv() {
 
         // --- FIX IMPLEMENTED HERE: Use Drive API to update file content/MIME type ---
 
-        const existingFile = files.next();
+        var existingFile = files.next();
 
         
 
@@ -7683,7 +7653,7 @@ function exportAllSheetsAsCsv() {
 
         );
 
-        Logger.log(`[UPDATED] Sheet "${sheetName}" saved to existing file: ${existingFile.getUrl()}`);
+        Logger.log('[UPDATED] Sheet "' + sheetName + '" saved to existing file: ' + existingFile.getUrl());
 
         // --------------------------------------------------------------------------
 
@@ -7693,7 +7663,7 @@ function exportAllSheetsAsCsv() {
 
         exportFolder.createFile(blob);
 
-        Logger.log(`[CREATED] Sheet "${sheetName}" saved to new file.`);
+        Logger.log('[CREATED] Sheet "' + sheetName + '" saved to new file.');
 
       }
 
@@ -7705,7 +7675,7 @@ function exportAllSheetsAsCsv() {
 
       // Catch errors, particularly if the Drive API fails or an API call limit is hit
 
-      Logger.log(`[ERROR] Failed to export sheet "${sheetName}": ${e.toString()}`);
+      Logger.log('[ERROR] Failed to export sheet "' + sheetName + '": ' + e.toString());
 
       errorCount++;
 
@@ -7723,23 +7693,17 @@ function exportAllSheetsAsCsv() {
 
   SpreadsheetApp.getUi().alert(
 
-    'CSV Export Complete', 
+    'CSV Export Complete',
 
-    `All sheets successfully exported to Drive:
+    'All sheets successfully exported to Drive:\n\n' +
 
-` +
+    'Folder: ' + exportFolder.getName() + '\n' +
 
-    `Folder: ${exportFolder.getName()}
-` +
+    'Successes: ' + successCount + '\n' +
 
-    `Successes: ${successCount}
-` +
+    'Failures: ' + errorCount + '\n\n' +
 
-    `Failures: ${errorCount}
-
-` +
-
-    `Check the script logs (View > Logs) for links and details.`,
+    'Check the script logs (View > Logs) for links and details.',
 
     SpreadsheetApp.getUi().ButtonSet.OK
 
@@ -7830,11 +7794,11 @@ function exportAllSheetsAsCsv() {
 
 function validatePanSetup() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const report = [];
+  var report = [];
 
-  let allGood = true;
+  var allGood = true;
 
   
 
@@ -7844,7 +7808,7 @@ function validatePanSetup() {
 
   report.push('='.repeat(60));
 
-  report.push(`Generated: ${new Date().toLocaleString()}`);
+  report.push('Generated: ' + new Date().toLocaleString());
 
   report.push('');
 
@@ -7858,7 +7822,7 @@ function validatePanSetup() {
 
   
 
-  const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+  var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
 
   if (!cleanSheet) {
 
@@ -7870,15 +7834,15 @@ function validatePanSetup() {
 
   } else {
 
-    const rowCount = cleanSheet.getLastRow() - 1; // Exclude header
+    var rowCount = cleanSheet.getLastRow() - 1; // Exclude header
 
-    report.push(`✅ Form Responses (Clean) found: ${rowCount} guests`);
+    report.push('✅ Form Responses (Clean) found: ' + rowCount + ' guests');
 
     
 
     // Verify required categorical columns exist
 
-    const cleanData = cleanSheet.getDataRange().getValues();
+    var cleanData = cleanSheet.getDataRange().getValues();
 
     if (cleanData.length < 2) {
 
@@ -7888,13 +7852,13 @@ function validatePanSetup() {
 
     } else {
 
-      const cleanHeaders = cleanData[0];
+      var cleanHeaders = cleanData[0];
 
       
 
       // List of key categorical columns needed for analysis
 
-      const requiredCols = [
+      var requiredCols = [
 
         'Screen Name',
 
@@ -7924,7 +7888,7 @@ function validatePanSetup() {
 
       
 
-      const missingCols = requiredCols.filter(col => 
+      var missingCols = requiredCols.filter(col => 
 
         !cleanHeaders.some(h => String(h).trim() === col)
 
@@ -7934,15 +7898,15 @@ function validatePanSetup() {
 
       if (missingCols.length > 0) {
 
-        report.push(`⚠️  Missing ${missingCols.length} required columns:`);
+        report.push('⚠️  Missing ' + missingCols.length + ' required columns:');
 
-        missingCols.forEach(col => report.push(`   - ${col}`));
+        missingCols.forEach(col => report.push('   - ' + col));
 
         allGood = false;
 
       } else {
 
-        report.push(`✅ All ${requiredCols.length} key categorical columns present`);
+        report.push('✅ All ' + requiredCols.length + ' key categorical columns present');
 
       }
 
@@ -7962,7 +7926,7 @@ function validatePanSetup() {
 
   
 
-  const panMaster = ss.getSheetByName('Pan_Master');
+  var panMaster = ss.getSheetByName('Pan_Master');
 
   if (!panMaster) {
 
@@ -7974,7 +7938,7 @@ function validatePanSetup() {
 
   } else {
 
-    const masterData = panMaster.getDataRange().getValues();
+    var masterData = panMaster.getDataRange().getValues();
 
     if (masterData.length < 2) {
 
@@ -7986,15 +7950,15 @@ function validatePanSetup() {
 
     } else {
 
-      const masterHeaders = masterData[0];
+      var masterHeaders = masterData[0];
 
-      const codeColumns = masterHeaders.filter(h => String(h).startsWith('code_'));
+      var codeColumns = masterHeaders.filter(h => String(h).startsWith('code_'));
 
-      const ohColumns = masterHeaders.filter(h => String(h).startsWith('oh_'));
+      var ohColumns = masterHeaders.filter(h => String(h).startsWith('oh_'));
 
-      const hasColumns = masterHeaders.filter(h => String(h).startsWith('has_'));
+      var hasColumns = masterHeaders.filter(h => String(h).startsWith('has_'));
 
-      const rowCount = masterData.length - 1;
+      var rowCount = masterData.length - 1;
 
       
 
@@ -8008,23 +7972,23 @@ function validatePanSetup() {
 
       } else {
 
-        report.push(`✅ Pan_Master found: ${rowCount} guests, ${masterHeaders.length} columns`);
+        report.push('✅ Pan_Master found: ' + rowCount + ' guests, ' + masterHeaders.length + ' columns');
 
-        report.push(`   - ${codeColumns.length} categorical variables (code_*)`);
+        report.push('   - ' + codeColumns.length + ' categorical variables (code_*)');
 
-        report.push(`   - ${ohColumns.length} one-hot columns (oh_*)`);
+        report.push('   - ' + ohColumns.length + ' one-hot columns (oh_*)');
 
-        report.push(`   - ${hasColumns.length} presence flags (has_*)`);
+        report.push('   - ' + hasColumns.length + ' presence flags (has_*)');
 
         report.push('');
 
-        report.push(`   Categorical variables for correlation:`);
+        report.push('   Categorical variables for correlation:');
 
         // List first 10 variables to avoid cluttering report
 
-        const varNames = codeColumns.slice(0, 10).map(c => c.replace('code_', ''));
+        var varNames = codeColumns.slice(0, 10).map(c => c.replace('code_', ''));
 
-        report.push(`   ${varNames.join(', ')}${codeColumns.length > 10 ? '...' : ''}`);
+        report.push('   ' + varNames.join(', ') + (codeColumns.length > 10 ? '...' : ''));
 
       }
 
@@ -8044,7 +8008,7 @@ function validatePanSetup() {
 
   
 
-  const panDict = ss.getSheetByName('Pan_Dict');
+  var panDict = ss.getSheetByName('Pan_Dict');
 
   if (!panDict) {
 
@@ -8056,7 +8020,7 @@ function validatePanSetup() {
 
   } else {
 
-    const dictData = panDict.getDataRange().getValues();
+    var dictData = panDict.getDataRange().getValues();
 
     if (dictData.length < 2) {
 
@@ -8066,11 +8030,11 @@ function validatePanSetup() {
 
     } else {
 
-      const dictHeaders = dictData[0];
+      var dictHeaders = dictData[0];
 
-      const requiredDictCols = ['Key', 'Header', 'Type', 'Option', 'Code'];
+      var requiredDictCols = ['Key', 'Header', 'Type', 'Option', 'Code'];
 
-      const hasDictCols = requiredDictCols.every(col => 
+      var hasDictCols = requiredDictCols.every(col => 
 
         dictHeaders.some(h => String(h).trim() === col)
 
@@ -8082,27 +8046,27 @@ function validatePanSetup() {
 
         report.push('❌ Pan_Dict missing required columns!');
 
-        report.push(`   Required: ${requiredDictCols.join(', ')}`);
+        report.push('   Required: ' + requiredDictCols.join(', '));
 
         allGood = false;
 
       } else {
 
-        const singleTypes = dictData.slice(1).filter(row => row[2] === 'single');
+        var singleTypes = dictData.slice(1).filter(row => row[2] === 'single');
 
-        const multiTypes = dictData.slice(1).filter(row => row[2] === 'multi');
+        var multiTypes = dictData.slice(1).filter(row => row[2] === 'multi');
 
-        const uniqueVars = new Set(singleTypes.map(row => row[0]));
+        var uniqueVars = new Set(singleTypes.map(row => row[0]));
 
         
 
-        report.push(`✅ Pan_Dict found: ${dictData.length - 1} total rows`);
+        report.push('✅ Pan_Dict found: ' + (dictData.length - 1) + ' total rows');
 
-        report.push(`   - ${uniqueVars.size} single-choice variables`);
+        report.push('   - ' + uniqueVars.size + ' single-choice variables');
 
-        report.push(`   - ${multiTypes.length > 0 ? 'Yes' : 'No'} multi-select variables`);
+        report.push('   - ' + (multiTypes.length > 0 ? 'Yes' : 'No') + ' multi-select variables');
 
-        report.push(`   - Structure: Key | Header | Type | Option | Code | Note`);
+        report.push('   - Structure: Key | Header | Type | Option | Code | Note');
 
       }
 
@@ -8152,27 +8116,27 @@ function validatePanSetup() {
 
   
 
-  const vCramers = ss.getSheetByName('V_Cramers');
+  var vCramers = ss.getSheetByName('V_Cramers');
 
   if (vCramers) {
 
-    const vData = vCramers.getDataRange().getValues();
+    var vData = vCramers.getDataRange().getValues();
 
     if (vData.length > 1) {
 
-      const varCount = vData.length - 1; // Exclude header
+      var varCount = vData.length - 1; // Exclude header
 
-      const lastModified = vCramers.getLastUpdated ? 
+      var lastModified = vCramers.getLastUpdated ? 
 
         vCramers.getLastUpdated().toLocaleString() : 'Unknown';
 
       
 
-      report.push(`✅ V_Cramers sheet exists with ${varCount} × ${varCount} matrix`);
+      report.push('✅ V_Cramers sheet exists with ' + varCount + ' × ' + varCount + ' matrix');
 
-      report.push(`   → Contains correlation data`);
+      report.push('   → Contains correlation data');
 
-      report.push(`   → Can be rebuilt anytime using "Build V_Cramers Matrix"`);
+      report.push('   → Can be rebuilt anytime using "Build V_Cramers Matrix"');
 
     } else {
 
@@ -8252,9 +8216,9 @@ function validatePanSetup() {
 
   // ========== DISPLAY REPORT ==========
 
-  const ui = SpreadsheetApp.getUi();
+  var ui = SpreadsheetApp.getUi();
 
-  const title = allGood ? '✅ Validation Passed' : '❌ Validation Failed';
+  var title = allGood ? '✅ Validation Passed' : '❌ Validation Failed';
 
   ui.alert(title, report.join('
 '), ui.ButtonSet.OK);
@@ -8300,19 +8264,19 @@ function validatePanSetup() {
 
 function isReadyForCramers() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
   
 
   // Check all required sheets exist
 
-  const hasClean = !!ss.getSheetByName('Form Responses (Clean)');
+  var hasClean = !!ss.getSheetByName('Form Responses (Clean)');
 
-  const hasMaster = !!ss.getSheetByName('Pan_Master');
+  var hasMaster = !!ss.getSheetByName('Pan_Master');
 
-  const hasDict = !!ss.getSheetByName('Pan_Dict');
+  var hasDict = !!ss.getSheetByName('Pan_Dict');
 
-  const hasFunction = typeof buildVCramers === 'function';
+  var hasFunction = typeof buildVCramers === 'function';
 
   
 
@@ -8326,17 +8290,17 @@ function isReadyForCramers() {
 
   // Verify Pan_Master has categorical code columns
 
-  const master = ss.getSheetByName('Pan_Master');
+  var master = ss.getSheetByName('Pan_Master');
 
-  const masterData = master.getDataRange().getValues();
+  var masterData = master.getDataRange().getValues();
 
   if (masterData.length < 2) return false; // No data
 
   
 
-  const headers = masterData[0];
+  var headers = masterData[0];
 
-  const codeCount = headers.filter(h => String(h).startsWith('code_')).length;
+  var codeCount = headers.filter(h => String(h).startsWith('code_')).length;
 
   
 
@@ -8384,11 +8348,11 @@ function isReadyForCramers() {
 
 function generateColumnMapping() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const clean = ss.getSheetByName('Form Responses (Clean)');
+  var clean = ss.getSheetByName('Form Responses (Clean)');
 
-  const master = ss.getSheetByName('Pan_Master');
+  var master = ss.getSheetByName('Pan_Master');
 
   
 
@@ -8440,31 +8404,31 @@ function generateColumnMapping() {
 
   // Load headers
 
-  const cleanHeaders = clean.getDataRange().getValues()[0];
+  var cleanHeaders = clean.getDataRange().getValues()[0];
 
-  const masterHeaders = master.getDataRange().getValues()[0];
+  var masterHeaders = master.getDataRange().getValues()[0];
 
   
 
   // Build mapping report
 
-  const report = [['Source Column (Clean)', 'Pan_Master Column(s)', 'Transformation Type', 'Notes']];
+  var report = [['Source Column (Clean)', 'Pan_Master Column(s)', 'Transformation Type', 'Notes']];
 
   
 
   cleanHeaders.forEach((cleanCol, i) => {
 
-    const cleanName = String(cleanCol).trim();
+    var cleanName = String(cleanCol).trim();
 
     if (!cleanName) return; // Skip empty columns
 
     
 
-    let masterCol = '';
+    var masterCol = '';
 
-    let colType = '';
+    var colType = '';
 
-    let notes = '';
+    var notes = '';
 
     
 
@@ -8534,11 +8498,11 @@ function generateColumnMapping() {
 
       // Try to find corresponding code_ column
 
-      const normalized = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      var normalized = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-      const codeCol = masterHeaders.find(h => {
+      var codeCol = masterHeaders.find(h => {
 
-        const hNorm = String(h).replace('code_', '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        var hNorm = String(h).replace('code_', '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
         return hNorm === normalized;
 
@@ -8558,7 +8522,7 @@ function generateColumnMapping() {
 
         // Check for multi-select (oh_* columns)
 
-        const ohMatches = masterHeaders.filter(h => 
+        var ohMatches = masterHeaders.filter(h => 
 
           String(h).startsWith('oh_') && 
 
@@ -8570,7 +8534,7 @@ function generateColumnMapping() {
 
         if (ohMatches.length > 0) {
 
-          masterCol = `${ohMatches.length} columns (oh_*)`;
+          masterCol = ohMatches.length + ' columns (oh_*)';
 
           colType = 'Multi-select (one-hot)';
 
@@ -8580,7 +8544,7 @@ function generateColumnMapping() {
 
           // Check for text presence flag
 
-          const hasCol = masterHeaders.find(h => 
+          var hasCol = masterHeaders.find(h => 
 
             String(h).startsWith('has_') && 
 
@@ -8624,7 +8588,7 @@ function generateColumnMapping() {
 
   // Write to new sheet
 
-  let mapSheet = ss.getSheetByName('Column_Mapping');
+  var mapSheet = ss.getSheetByName('Column_Mapping');
 
   if (!mapSheet) {
 
@@ -8644,7 +8608,7 @@ function generateColumnMapping() {
 
   // Format header row
 
-  const headerRange = mapSheet.getRange(1, 1, 1, 4);
+  var headerRange = mapSheet.getRange(1, 1, 1, 4);
 
   headerRange
 
@@ -8686,7 +8650,7 @@ function generateColumnMapping() {
 
   if (report.length > 1) {
 
-    for (let row = 2; row <= report.length; row++) {
+    for (var row = 2; row <= report.length; row++) {
 
       if (row % 2 === 0) {
 
@@ -8706,9 +8670,7 @@ function generateColumnMapping() {
 
     '✅ Column Mapping Generated!',
 
-    `Created "Column_Mapping" sheet with ${report.length - 1} source columns.
-
-` +
+    'Created "Column_Mapping" sheet with ' + (report.length - 1) + ' source columns.\n\n' +
 
     'This shows how each column in "Form Responses (Clean)" is
 ' +
@@ -8753,15 +8715,15 @@ function generateColumnMapping() {
 
 function refreshAllAnalytics() {
 
-  const ui = SpreadsheetApp.getUi();
+  var ui = SpreadsheetApp.getUi();
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
   
 
   // Confirmation dialog
 
-  const response = ui.alert(
+  var response = ui.alert(
 
     'Refresh All Analytics',
 
@@ -9002,9 +8964,9 @@ function setupAutomation() {
 
 function stopAutomation() {
 
-  const triggers = ScriptApp.getProjectTriggers();
+  var triggers = ScriptApp.getProjectTriggers();
 
-  let removedCount = 0;
+  var removedCount = 0;
 
   
 
@@ -9049,9 +9011,9 @@ function stopAutomation() {
 
 function checkAutomationStatus() {
 
-  const triggers = ScriptApp.getProjectTriggers();
+  var triggers = ScriptApp.getProjectTriggers();
 
-  const activeTriggers = triggers.filter(t => t.getHandlerFunction() === 'runAutomatedAnalysis');
+  var activeTriggers = triggers.filter(t => t.getHandlerFunction() === 'runAutomatedAnalysis');
 
   
 
@@ -9109,7 +9071,7 @@ function checkAutomationStatus() {
 
 function runAutomatedAnalysis() {
 
-  const startTime = new Date();
+  var startTime = new Date();
 
   Logger.log('=== AUTOMATED ANALYSIS STARTED at ' + startTime.toString() + ' ===');
 
@@ -9117,7 +9079,7 @@ function runAutomatedAnalysis() {
 
   try {
 
-    const checkedInCount = countCheckedInGuests();
+    var checkedInCount = countCheckedInGuests();
 
     Logger.log('Guests checked in at event: ' + checkedInCount);
 
@@ -9139,9 +9101,9 @@ function runAutomatedAnalysis() {
 
     
 
-    const endTime = new Date();
+    var endTime = new Date();
 
-    const duration = (endTime - startTime) / 1000;
+    var duration = (endTime - startTime) / 1000;
 
     Logger.log('=== ANALYSIS COMPLETE in ' + duration + ' seconds ===');
 
@@ -9194,9 +9156,9 @@ function manualRunAnalysis() {
 
 function countCheckedInGuests() {
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+  var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
 
   
 
@@ -9210,15 +9172,15 @@ function countCheckedInGuests() {
 
   
 
-  const data = cleanSheet.getDataRange().getValues();
+  var data = cleanSheet.getDataRange().getValues();
 
   if (data.length < 2) return 0;
 
   
 
-  const headers = data[0];
+  var headers = data[0];
 
-  const checkedInCol = headers.indexOf('Checked-In at Event');
+  var checkedInCol = headers.indexOf('Checked-In at Event');
 
   
 
@@ -9232,11 +9194,11 @@ function countCheckedInGuests() {
 
   
 
-  let count = 0;
+  var count = 0;
 
-  for (let r = 1; r < data.length; r++) {
+  for (var r = 1; r < data.length; r++) {
 
-    const status = String(data[r][checkedInCol] || '').trim().toUpperCase();
+    var status = String(data[r][checkedInCol] || '').trim().toUpperCase();
 
     if (status === 'Y') count++;
 
@@ -9252,9 +9214,9 @@ function countCheckedInGuests() {
 
 function detectDataDisruptorsForCheckedIn() {
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const cleanSheet = ss.getSheetByName('Form Responses (Clean)');
+  var cleanSheet = ss.getSheetByName('Form Responses (Clean)');
 
   
 
@@ -9268,19 +9230,19 @@ function detectDataDisruptorsForCheckedIn() {
 
   
 
-  const cleanData = cleanSheet.getDataRange().getValues();
+  var cleanData = cleanSheet.getDataRange().getValues();
 
-  const cleanHeaders = cleanData[0];
+  var cleanHeaders = cleanData[0];
 
-  const allRows = cleanData.slice(1);
+  var allRows = cleanData.slice(1);
 
   
 
-  const screenNameCol = cleanHeaders.indexOf('Screen Name');
+  var screenNameCol = cleanHeaders.indexOf('Screen Name');
 
-  const uidCol = cleanHeaders.indexOf('UID');
+  var uidCol = cleanHeaders.indexOf('UID');
 
-  const checkedInCol = cleanHeaders.indexOf('Checked-In at Event');
+  var checkedInCol = cleanHeaders.indexOf('Checked-In at Event');
 
   
 
@@ -9294,9 +9256,9 @@ function detectDataDisruptorsForCheckedIn() {
 
   
 
-  const checkedInRows = allRows.filter(row => {
+  var checkedInRows = allRows.filter(row => {
 
-    const status = String(row[checkedInCol] || '').trim().toUpperCase();
+    var status = String(row[checkedInCol] || '').trim().toUpperCase();
 
     return status === 'Y';
 
@@ -9318,7 +9280,7 @@ function detectDataDisruptorsForCheckedIn() {
 
   
 
-  const dddHeaders = [
+  var dddHeaders = [
 
     'Screen Name',
 
@@ -9368,7 +9330,7 @@ function detectDataDisruptorsForCheckedIn() {
 
   
 
-  const COL = {
+  var COL = {
 
     TIMESTAMP: 0,
 
@@ -9416,33 +9378,33 @@ function detectDataDisruptorsForCheckedIn() {
 
   
 
-  const detectionLog = [];
+  var detectionLog = [];
 
-  let totalDisruptors = 0;
+  var totalDisruptors = 0;
 
   
 
-  const dddResults = checkedInRows.map((row, idx) => {
+  var dddResults = checkedInRows.map((row, idx) => {
 
-    const rowNum = idx + 2;
+    var rowNum = idx + 2;
 
-    const screenName = row[screenNameCol] || 'Unknown';
+    var screenName = row[screenNameCol] || 'Unknown';
 
-    const uid = row[uidCol] || 'No UID';
-
-    
-
-    const flags = analyzeSuspiciousPatterns(row, rowNum, COL, detectionLog, screenName);
+    var uid = row[uidCol] || 'No UID';
 
     
 
-    return [screenName, uid, ...flags];
+    var flags = analyzeSuspiciousPatterns(row, rowNum, COL, detectionLog, screenName);
+
+    
+
+    return [screenName, uid].concat(flags);
 
   });
 
   
 
-  let dddSheet = ss.getSheetByName('DDD (Checked-In Only)');
+  var dddSheet = ss.getSheetByName('DDD (Checked-In Only)');
 
   if (dddSheet) {
 
@@ -9500,9 +9462,9 @@ function detectDataDisruptorsForCheckedIn() {
 
 function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
-  const flags = [];
+  var flags = [];
 
-  let liarScore = 0;
+  var liarScore = 0;
 
   
 
@@ -9526,9 +9488,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 1: Birthday Format
 
-  const birthday = String(row[COL.BIRTHDAY] || '').trim();
+  var birthday = String(row[COL.BIRTHDAY] || '').trim();
 
-  const birthdayFlag = !birthday || !birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
+  var birthdayFlag = !birthday || !birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
 
   flags.push(birthdayFlag ? 1 : 0);
 
@@ -9544,11 +9506,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 2: More Than 3 Interests
 
-  const interests = String(row[COL.INTERESTS] || '').trim();
+  var interests = String(row[COL.INTERESTS] || '').trim();
 
-  const interestCount = interests ? interests.split(',').length : 0;
+  var interestCount = interests ? interests.split(',').length : 0;
 
-  const tooManyInterests = interestCount > 3;
+  var tooManyInterests = interestCount > 3;
 
   flags.push(tooManyInterests ? 1 : 0);
 
@@ -9564,9 +9526,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 3: Unknown Guest
 
-  const knowHost = String(row[COL.KNOW_HOST] || '').toLowerCase().trim();
+  var knowHost = String(row[COL.KNOW_HOST] || '').toLowerCase().trim();
 
-  const unknownGuest = knowHost === 'no' || knowHost === '';
+  var unknownGuest = knowHost === 'no' || knowHost === '';
 
   flags.push(unknownGuest ? 1 : 0);
 
@@ -9582,9 +9544,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 4: No Song Request
 
-  const song = String(row[COL.SONG] || '').trim();
+  var song = String(row[COL.SONG] || '').trim();
 
-  const noSong = !song || song.toLowerCase() === 'none' || song.toLowerCase() === 'n/a';
+  var noSong = !song || song.toLowerCase() === 'none' || song.toLowerCase() === 'n/a';
 
   flags.push(noSong ? 1 : 0);
 
@@ -9600,7 +9562,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 5: Vague Song Request
 
-  const vagueSong = song && song.length > 0 && song.length < 10;
+  var vagueSong = song && song.length > 0 && song.length < 10;
 
   flags.push(vagueSong ? 1 : 0);
 
@@ -9616,7 +9578,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 6: Multiple Songs Listed
 
-  const multipleSongs = song.includes(',') || song.includes('/') || song.includes('&') || song.includes(' or ');
+  var multipleSongs = song.includes(',') || song.includes('/') || song.includes('&') || song.includes(' or ');
 
   flags.push(multipleSongs ? 1 : 0);
 
@@ -9632,9 +9594,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 7: No Artist Listed
 
-  const artist = String(row[COL.ARTIST] || '').trim();
+  var artist = String(row[COL.ARTIST] || '').trim();
 
-  const noArtist = !artist || artist.toLowerCase() === 'none' || artist.toLowerCase() === 'n/a';
+  var noArtist = !artist || artist.toLowerCase() === 'none' || artist.toLowerCase() === 'n/a';
 
   flags.push(noArtist ? 1 : 0);
 
@@ -9650,9 +9612,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 8: Barely Knows Host
 
-  const howWell = String(row[COL.HOW_WELL] || '').toLowerCase().trim();
+  var howWell = String(row[COL.HOW_WELL] || '').toLowerCase().trim();
 
-  const barelyKnows = howWell.includes('barely') || howWell.includes('not well') || howWell === 'acquaintance';
+  var barelyKnows = howWell.includes('barely') || howWell.includes('not well') || howWell === 'acquaintance';
 
   flags.push(barelyKnows ? 1 : 0);
 
@@ -9668,7 +9630,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 9: Fresh Acquaintance
 
-  const freshAcquaintance = howWell.includes('just met') || howWell.includes('recently') || howWell.includes('new');
+  var freshAcquaintance = howWell.includes('just met') || howWell.includes('recently') || howWell.includes('new');
 
   flags.push(freshAcquaintance ? 1 : 0);
 
@@ -9684,9 +9646,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 10: Host Ambiguity
 
-  const whichHost = String(row[COL.WHICH_HOST] || '').trim();
+  var whichHost = String(row[COL.WHICH_HOST] || '').trim();
 
-  const hostAmbiguous = !whichHost || whichHost.toLowerCase().includes('both') || whichHost.toLowerCase().includes('not sure');
+  var hostAmbiguous = !whichHost || whichHost.toLowerCase().includes('both') || whichHost.toLowerCase().includes('not sure');
 
   flags.push(hostAmbiguous ? 1 : 0);
 
@@ -9702,17 +9664,17 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 11: Age/Birthday Mismatch
 
-  const ageRange = String(row[COL.AGE_RANGE] || '').trim();
+  var ageRange = String(row[COL.AGE_RANGE] || '').trim();
 
-  let ageMismatch = false;
+  var ageMismatch = false;
 
   if (birthday.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
 
-    const birthYear = parseInt(birthday.split('/')[2]);
+    var birthYear = parseInt(birthday.split('/')[2]);
 
-    const currentYear = new Date().getFullYear();
+    var currentYear = new Date().getFullYear();
 
-    const calculatedAge = currentYear - birthYear;
+    var calculatedAge = currentYear - birthYear;
 
     
 
@@ -9740,11 +9702,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 12: Education/Career Implausibility
 
-  const education = String(row[COL.EDUCATION] || '').toLowerCase();
+  var education = String(row[COL.EDUCATION] || '').toLowerCase();
 
-  const role = String(row[COL.ROLE] || '').toLowerCase();
+  var role = String(row[COL.ROLE] || '').toLowerCase();
 
-  const implausible = (education.includes('high school') && (role.includes('director') || role.includes('vp') || role.includes('ceo'))) ||
+  var implausible = (education.includes('high school') && (role.includes('director') || role.includes('vp') || role.includes('ceo'))) ||
 
                        (education.includes('phd') && ageRange === '18-24');
 
@@ -9762,11 +9724,11 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 13: Meme/Joke Response
 
-  const worstTrait = String(row[COL.WORST_TRAIT] || '').toLowerCase();
+  var worstTrait = String(row[COL.WORST_TRAIT] || '').toLowerCase();
 
-  const memeKeywords = ['too awesome', 'too perfect', 'none', 'n/a', 'lol', 'lmao', 'haha', 'idk'];
+  var memeKeywords = ['too awesome', 'too perfect', 'none', 'n/a', 'lol', 'lmao', 'haha', 'idk'];
 
-  const isMeme = memeKeywords.some(keyword => worstTrait.includes(keyword));
+  var isMeme = memeKeywords.some(keyword => worstTrait.includes(keyword));
 
   flags.push(isMeme ? 1 : 0);
 
@@ -9782,9 +9744,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 14: Music/Artist Genre Mismatch
 
-  const musicGenre = String(row[COL.MUSIC] || '').toLowerCase();
+  var musicGenre = String(row[COL.MUSIC] || '').toLowerCase();
 
-  const genreMismatch = (musicGenre.includes('classical') && artist.toLowerCase().includes('drake')) ||
+  var genreMismatch = (musicGenre.includes('classical') && artist.toLowerCase().includes('drake')) ||
 
                         (musicGenre.includes('country') && artist.toLowerCase().includes('metallica')) ||
 
@@ -9804,9 +9766,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 15: Minimum Effort Detected
 
-  const totalChars = String(row.join('')).length;
+  var totalChars = String(row.join('')).length;
 
-  const minEffort = totalChars < 100 || interests.length < 5 || worstTrait.length < 5;
+  var minEffort = totalChars < 100 || interests.length < 5 || worstTrait.length < 5;
 
   flags.push(minEffort ? 1 : 0);
 
@@ -9822,7 +9784,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 16: Stranger Danger
 
-  const strangerDanger = unknownGuest && (barelyKnows || freshAcquaintance);
+  var strangerDanger = unknownGuest && (barelyKnows || freshAcquaintance);
 
   flags.push(strangerDanger ? 1 : 0);
 
@@ -9838,7 +9800,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 17: Relationship Contradiction
 
-  const contradiction = (knowHost === 'yes' && (howWell.includes('never') || howWell.includes("don't"))) ||
+  var contradiction = (knowHost === 'yes' && (howWell.includes('never') || howWell.includes("don't"))) ||
 
                         (knowHost === 'no' && howWell.includes('well') || howWell.includes('close'));
 
@@ -9856,7 +9818,7 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 18: Special Snowflake Syndrome
 
-  const specialSnowflake = interests.toLowerCase().includes('unicorn') || 
+  var specialSnowflake = interests.toLowerCase().includes('unicorn') || 
 
                            interests.toLowerCase().includes('quantum') ||
 
@@ -9878,9 +9840,9 @@ function analyzeSuspiciousPatterns(row, rowNum, COL, log, screenName) {
 
   // DDD 19: Suspiciously Generic
 
-  const genericKeywords = ['stuff', 'things', 'whatever', 'anything', 'nothing special'];
+  var genericKeywords = ['stuff', 'things', 'whatever', 'anything', 'nothing special'];
 
-  const tooGeneric = genericKeywords.some(keyword => 
+  var tooGeneric = genericKeywords.some(keyword => 
 
     interests.includes(keyword) || worstTrait.includes(keyword)
 
@@ -9918,7 +9880,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   
 
-  const headerRange = sheet.getRange(1, 1, 1, numCols);
+  var headerRange = sheet.getRange(1, 1, 1, numCols);
 
   headerRange.setFontWeight('bold');
 
@@ -9934,7 +9896,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   sheet.setColumnWidth(2, 100);
 
-  for (let i = 3; i <= numCols - 1; i++) {
+  for (var i = 3; i <= numCols - 1; i++) {
 
     sheet.setColumnWidth(i, 80);
 
@@ -9946,13 +9908,13 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
   if (numRows > 0) {
 
-    for (let col = 3; col <= numCols; col++) {
+    for (var col = 3; col <= numCols; col++) {
 
-      const range = sheet.getRange(2, col, numRows, 1);
+      var range = sheet.getRange(2, col, numRows, 1);
 
       
 
-      const rule = SpreadsheetApp.newConditionalFormatRule()
+      var rule = SpreadsheetApp.newConditionalFormatRule()
 
         .whenNumberGreaterThan(0)
 
@@ -9964,7 +9926,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
       
 
-      const rules = sheet.getConditionalFormatRules();
+      var rules = sheet.getConditionalFormatRules();
 
       rules.push(rule);
 
@@ -9974,13 +9936,13 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     
 
-    const scoreRange = sheet.getRange(2, numCols, numRows, 1);
+    var scoreRange = sheet.getRange(2, numCols, numRows, 1);
 
     scoreRange.setFontWeight('bold');
 
     
 
-    const scoreRules = [
+    var scoreRules = [
 
       SpreadsheetApp.newConditionalFormatRule()
 
@@ -10018,7 +9980,7 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
     
 
-    const allRules = sheet.getConditionalFormatRules();
+    var allRules = sheet.getConditionalFormatRules();
 
     sheet.setConditionalFormatRules(allRules.concat(scoreRules));
 
@@ -10047,31 +10009,17 @@ function formatDDDSheet(sheet, numCols, numRows) {
 
 
 
-const MASTER_DESC_SHEET = 'Master_Desc';
+var MASTER_DESC_SHEET = 'Master_Desc';
 
 
 
 /**
 
- * Add menu item to Google Sheets UI
+ * Documentation menu handled by mergeAnalyticsMenu() function
 
- * Run this automatically when spreadsheet opens
+ * Called from main onOpen() in onOpen.gs
 
  */
-
-function onOpen() {
-
-  SpreadsheetApp.getUi()
-
-    .createMenu('📋 Documentation')
-
-    .addItem('Generate Master_Desc', 'generateMasterDesc')
-
-    .addItem('Refresh All Analytics', 'refreshAllAnalytics')
-
-    .addToUi();
-
-}
 
 
 
@@ -10085,15 +10033,15 @@ function onOpen() {
 
 function generateMasterDesc() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const allSheets = ss.getSheets();
+  var allSheets = ss.getSheets();
 
   
 
   // Prepare output data
 
-  const output = [
+  var output = [
 
     ['Sheet Name', 'Column #', 'Column Name', 'Data Type', 'Sample Values', 'Row Count', 'Notes']
 
@@ -10103,7 +10051,7 @@ function generateMasterDesc() {
 
   allSheets.forEach(sheet => {
 
-    const sheetName = sheet.getName();
+    var sheetName = sheet.getName();
 
     
 
@@ -10113,9 +10061,9 @@ function generateMasterDesc() {
 
     
 
-    const data = sheet.getDataRange().getValues();
+    var data = sheet.getDataRange().getValues();
 
-    const rowCount = data.length;
+    var rowCount = data.length;
 
     
 
@@ -10129,9 +10077,9 @@ function generateMasterDesc() {
 
     
 
-    const headers = data[0];
+    var headers = data[0];
 
-    const numCols = headers.length;
+    var numCols = headers.length;
 
     
 
@@ -10139,21 +10087,21 @@ function generateMasterDesc() {
 
     headers.forEach((header, colIdx) => {
 
-      const colNum = colIdx + 1;
+      var colNum = colIdx + 1;
 
-      const colName = String(header || `(Column ${colNum})`).trim();
+      var colName = String(header || '(Column ' + colNum + ')').trim();
 
       
 
       // Analyze column data type and get samples
 
-      const analysis = analyzeColumn_(data, colIdx);
+      var analysis = analyzeColumn_(data, colIdx);
 
       
 
       // Notes about special columns
 
-      let notes = '';
+      var notes = '';
 
       if (colName.startsWith('code_')) notes = 'Categorical code';
 
@@ -10211,11 +10159,9 @@ function generateMasterDesc() {
 
   SpreadsheetApp.getUi().alert(
 
-    `✅ Master_Desc generated!
+    '✅ Master_Desc generated!\n\n' +
 
-` +
-
-    `Documented ${allSheets.length - 1} sheets with ${output.length - 1} total columns.`
+    'Documented ' + (allSheets.length - 1) + ' sheets with ' + (output.length - 1) + ' total columns.'
 
   );
 
@@ -10241,21 +10187,21 @@ function analyzeColumn_(data, colIdx) {
 
   // Get up to 3 unique non-empty sample values (excluding header)
 
-  const samples = [];
+  var samples = [];
 
-  const seen = new Set();
+  var seen = new Set();
 
   
 
-  for (let i = 1; i < data.length && samples.length < 3; i++) {
+  for (var i = 1; i < data.length && samples.length < 3; i++) {
 
-    const val = data[i][colIdx];
+    var val = data[i][colIdx];
 
     if (val === null || val === undefined || val === '') continue;
 
     
 
-    const valStr = String(val).trim();
+    var valStr = String(val).trim();
 
     if (valStr && !seen.has(valStr)) {
 
@@ -10271,11 +10217,11 @@ function analyzeColumn_(data, colIdx) {
 
   // Determine data type
 
-  let type = 'Unknown';
+  var type = 'Unknown';
 
   if (samples.length > 0) {
 
-    const firstVal = data[1][colIdx];
+    var firstVal = data[1][colIdx];
 
     
 
@@ -10287,9 +10233,9 @@ function analyzeColumn_(data, colIdx) {
 
       // Check if it's all 0s and 1s (binary flag)
 
-      const allBinary = data.slice(1).every(row => {
+      var allBinary = data.slice(1).every(row => {
 
-        const v = row[colIdx];
+        var v = row[colIdx];
 
         return v === 0 || v === 1 || v === '' || v === null;
 
@@ -10301,13 +10247,13 @@ function analyzeColumn_(data, colIdx) {
 
       // Check if it looks like codes (all numeric strings 1-10)
 
-      const allCodes = data.slice(1, Math.min(20, data.length)).every(row => {
+      var allCodes = data.slice(1, Math.min(20, data.length)).every(row => {
 
-        const v = row[colIdx];
+        var v = row[colIdx];
 
         if (v === '' || v === null) return true;
 
-        const num = Number(v);
+        var num = Number(v);
 
         return isFinite(num) && num >= 1 && num <= 50;
 
@@ -10341,9 +10287,9 @@ function analyzeColumn_(data, colIdx) {
 
 function writeMasterDesc_(data) {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  let sheet = ss.getSheetByName(MASTER_DESC_SHEET);
+  var sheet = ss.getSheetByName(MASTER_DESC_SHEET);
 
   
 
@@ -10377,17 +10323,17 @@ function writeMasterDesc_(data) {
 
 function formatMasterDesc_() {
 
-  const ss = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
 
-  const sheet = ss.getSheetByName(MASTER_DESC_SHEET);
+  var sheet = ss.getSheetByName(MASTER_DESC_SHEET);
 
   if (!sheet) return;
 
   
 
-  const lastRow = sheet.getLastRow();
+  var lastRow = sheet.getLastRow();
 
-  const lastCol = sheet.getLastColumn();
+  var lastCol = sheet.getLastColumn();
 
   if (lastRow < 1 || lastCol < 1) return;
 
@@ -10395,7 +10341,7 @@ function formatMasterDesc_() {
 
   // Format header row
 
-  const headerRange = sheet.getRange(1, 1, 1, lastCol);
+  var headerRange = sheet.getRange(1, 1, 1, lastCol);
 
   headerRange
 
@@ -10417,7 +10363,7 @@ function formatMasterDesc_() {
 
   // Auto-resize all columns
 
-  for (let i = 1; i <= lastCol; i++) {
+  for (var i = 1; i <= lastCol; i++) {
 
     sheet.autoResizeColumn(i);
 
@@ -10447,15 +10393,15 @@ function formatMasterDesc_() {
 
   if (lastRow > 1) {
 
-    let currentSheet = '';
+    var currentSheet = '';
 
-    let useGray = false;
+    var useGray = false;
 
     
 
-    for (let row = 2; row <= lastRow; row++) {
+    for (var row = 2; row <= lastRow; row++) {
 
-      const sheetName = sheet.getRange(row, 1).getValue();
+      var sheetName = sheet.getRange(row, 1).getValue();
 
       
 
@@ -10471,7 +10417,7 @@ function formatMasterDesc_() {
 
       if (sheetName) { // Only color non-empty rows
 
-        const rowRange = sheet.getRange(row, 1, 1, lastCol);
+        var rowRange = sheet.getRange(row, 1, 1, lastCol);
 
         if (useGray) {
 
